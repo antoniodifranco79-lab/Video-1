@@ -1,0 +1,11 @@
+[
+ {"id":"hook",   "text":"E se la Luna cadesse sulla Terra?", "pauseAfter":0.9},
+ {"id":"drift",  "text":"Oggi la Luna si allontana da noi di quasi quattro centimetri all'anno. Ma immaginiamo che, all'improvviso, inizi ad avvicinarsi.", "pauseAfter":0.5},
+ {"id":"tides",  "text":"A metà strada, la sua gravità scatena maree mostruose. Onde alte centinaia di metri inghiottono le coste di ogni continente.", "pauseAfter":0.5},
+ {"id":"roche",  "text":"A diciottomila chilometri la Luna supera il limite di Roche. La gravità terrestre la fa letteralmente a pezzi.", "pauseAfter":0.6},
+ {"id":"ring",   "text":"I frammenti si dispongono in orbita. Per qualche tempo la Terra avrebbe un anello spettacolare, come Saturno.", "pauseAfter":0.5},
+ {"id":"rain",   "text":"Ma l'anello non dura. Milioni di rocce piovono sul pianeta per secoli, trasformando la superficie in un oceano di lava.", "pauseAfter":0.5},
+ {"id":"wobble", "text":"E senza la Luna a stabilizzarci, l'asse terrestre comincerebbe a vacillare. Le stagioni impazzirebbero per sempre.", "pauseAfter":0.6},
+ {"id":"outro",  "text":"Per fortuna la Luna non cadrà mai. Ma adesso sai esattamente cosa succederebbe.", "pauseAfter":0.3},
+ {"id":"cta",    "text":"Seguimi per il prossimo Uot If.", "pauseAfter":1.2}
+]

@@ -1,0 +1,16 @@
+{
+  "name": "what-if-luna",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Video What If 3D in formato verticale: E se la Luna cadesse sulla Terra?",
+  "type": "module",
+  "scripts": {
+    "timeline": "python3 src/build_timeline.py",
+    "sfx": "python3 src/sfx.py",
+    "test-frames": "node src/render.mjs test 1.6 12.5 22.6 27 34.5 40 46",
+    "render": "node src/render.mjs full 0 1541 1"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  }
+}
