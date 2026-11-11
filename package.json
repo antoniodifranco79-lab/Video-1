@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "timeline": "python3 src/build_timeline.py",
-    "sfx": "python3 src/sfx.py",
-    "test-frames": "node src/render.mjs test 1.6 12.5 22.6 27 34.5 40 46",
-    "render": "node src/render.mjs full 0 1541 1"
+    "audio": "python3 src/music.py",
+    "test-frames": "node src/render.mjs test 1.5 8 16 23 27 31 38 45 54",
+    "render": "node src/render.mjs full 0 1725 1"
   },
   "dependencies": {
     "three": "0.170.0"

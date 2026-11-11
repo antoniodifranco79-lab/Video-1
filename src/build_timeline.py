@@ -1,17 +1,16 @@
-import json, wave, numpy as np, re, os, subprocess
+import json, wave, numpy as np, re, os
 # Genera la narrazione con Piper (voce it_IT-paola-medium) e costruisce src/timeline.json con i tempi parola per parola.
 HERE=os.path.dirname(os.path.abspath(__file__)); os.chdir(HERE)
 VOICE=os.path.join(HERE,'..','voices','it_IT-paola-medium.onnx')
 os.makedirs('narr',exist_ok=True)
 items=json.load(open('script.json'))
-for it in items:
-    out=f"narr/{it['id']}.wav"
-    if not os.path.exists(out):
-        subprocess.run(['python3','-m','piper','-m',VOICE,'--length-scale','0.93','--sentence-silence','0.25','-f',out],input=it['text'].encode(),check=True)
-FPS=30; LEAD=1.0; SR=22050
-display={'cta':'Seguimi per il prossimo What If.'}
+FPS=30; LEAD=0.55; SR=22050
+display={'cta':'Seguimi: nel prossimo What If, cosa succede se il Sole si spegne.'}
 t=LEAD; sentences=[]; track=[]
+import subprocess, os
 for it in items:
+    if not os.path.exists(f"narr/{it['id']}.wav"):
+        subprocess.run(['python3','-m','piper','-m',VOICE,'--length-scale','0.95','--sentence-silence','0.3','-f',f"narr/{it['id']}.wav"],input=it['text'].encode(),check=True,capture_output=True)
     w=wave.open(f"narr/{it['id']}.wav"); a=np.frombuffer(w.readframes(w.getnframes()),dtype=np.int16).astype(np.float32)/32768
     env=np.abs(a); nz=np.where(env>0.02)[0]; vs=nz[0]/SR; ve=nz[-1]/SR
     # trim trailing silence beyond voiced end + 0.12s
@@ -34,8 +33,12 @@ for it in items:
         cur+=d
     # chunks of max 3 words, break at punctuation
     chunks=[]; c=[]
-    for x in wl:
+    for k,x in enumerate(wl):
         c.append(x)
+        if it['id']=='hook' and len(chunks)==0:
+            if x['w'].endswith('?'):
+                chunks.append(c); c=[]
+            continue
         if len(c)>=3 or x['w'][-1] in ',.;:?!':
             chunks.append(c); c=[]
     if c: chunks.append(c)

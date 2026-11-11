@@ -1,11 +1,11 @@
 [
- {"id":"hook",   "text":"E se la Luna cadesse sulla Terra?", "pauseAfter":0.9},
- {"id":"drift",  "text":"Oggi la Luna si allontana da noi di quasi quattro centimetri all'anno. Ma immaginiamo che, all'improvviso, inizi ad avvicinarsi.", "pauseAfter":0.5},
- {"id":"tides",  "text":"A metà strada, la sua gravità scatena maree mostruose. Onde alte centinaia di metri inghiottono le coste di ogni continente.", "pauseAfter":0.5},
- {"id":"roche",  "text":"A diciottomila chilometri la Luna supera il limite di Roche. La gravità terrestre la fa letteralmente a pezzi.", "pauseAfter":0.6},
- {"id":"ring",   "text":"I frammenti si dispongono in orbita. Per qualche tempo la Terra avrebbe un anello spettacolare, come Saturno.", "pauseAfter":0.5},
- {"id":"rain",   "text":"Ma l'anello non dura. Milioni di rocce piovono sul pianeta per secoli, trasformando la superficie in un oceano di lava.", "pauseAfter":0.5},
- {"id":"wobble", "text":"E senza la Luna a stabilizzarci, l'asse terrestre comincerebbe a vacillare. Le stagioni impazzirebbero per sempre.", "pauseAfter":0.6},
- {"id":"outro",  "text":"Per fortuna la Luna non cadrà mai. Ma adesso sai esattamente cosa succederebbe.", "pauseAfter":0.3},
- {"id":"cta",    "text":"Seguimi per il prossimo Uot If.", "pauseAfter":1.2}
+ {"id":"hook",   "text":"E se la Luna cadesse sulla Terra? Spoiler: non riuscirebbe nemmeno a toccarla.", "pauseAfter":0.7},
+ {"id":"drift",  "text":"Oggi la Luna è a trecentottantaquattromila chilometri, e si allontana di quasi quattro centimetri all'anno. Ma immaginiamo che inizi a cadere verso di noi.", "pauseAfter":0.45},
+ {"id":"tides",  "text":"Già a metà strada, la sua gravità solleva maree alte centinaia di metri. Le coste di ogni continente spariscono sott'acqua.", "pauseAfter":0.45},
+ {"id":"roche",  "text":"A diciottomila chilometri succede l'impensabile. La Luna supera il limite di Roche: la gravità della Terra la strappa letteralmente a pezzi.", "pauseAfter":0.7},
+ {"id":"ring",   "text":"I frammenti si dispongono in orbita. Per qualche secolo la Terra avrebbe un anello spettacolare, come Saturno.", "pauseAfter":0.45},
+ {"id":"rain",   "text":"Ma quell'anello è una condanna. Milioni di rocce piovono sul pianeta, e la superficie diventa un oceano di lava.", "pauseAfter":0.45},
+ {"id":"wobble", "text":"E senza la Luna a tenerci fermi, l'asse terrestre comincia a oscillare. Addio stagioni, addio clima stabile.", "pauseAfter":0.6},
+ {"id":"outro",  "text":"Per fortuna la Luna non cadrà mai. Ma adesso sai perché è meglio tenerla dov'è.", "pauseAfter":0.35},
+ {"id":"cta",    "text":"Seguimi: nel prossimo Uot If, cosa succede se il Sole si spegne.", "pauseAfter":1.3}
 ]
