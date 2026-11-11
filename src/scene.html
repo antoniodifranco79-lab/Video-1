@@ -10,26 +10,26 @@
  #badge .sub{font-family:'JetBrains Mono',monospace;font-size:22px;letter-spacing:.3em;color:rgba(255,255,255,.75)}
  #cap{position:absolute;left:50%;top:1270px;transform:translate(-50%,-50%);width:900px;text-align:center;font-weight:900;font-size:78px;line-height:1.02;text-transform:uppercase;color:#fff;letter-spacing:-.01em;
    paint-order:stroke fill;-webkit-text-stroke:16px #000;text-shadow:0 10px 30px rgba(0,0,0,.8)}
- #cap.title{font-size:104px;top:980px;width:960px;line-height:.98}
+ #cap.title{font-size:100px;top:980px;width:980px;line-height:.98}
  #cap span{display:inline-block;margin:0 .12em;transform-origin:50% 60%}
- #cap span.hot{color:#FFD60A}
+ #cap span.hot{color:#FFB020}
  #cap span.past{color:#fff}
  #cap span.future{color:rgba(255,255,255,.92)}
  #cta{position:absolute;left:50%;top:1470px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0}
  #cta .l1{font-weight:900;font-size:40px;letter-spacing:.14em;color:#fff;text-transform:uppercase;paint-order:stroke fill;-webkit-text-stroke:10px #000}
- #cta .l2{font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.2em;color:#FFD60A;text-transform:uppercase}
+ #cta .l2{font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.2em;color:#FFB020;text-transform:uppercase}
  .callout{position:absolute;left:0;top:0;opacity:0;font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.14em;color:#fff;text-transform:uppercase;white-space:nowrap}
- .callout .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#FFD60A;box-shadow:0 0 14px #FFD60A;left:-7px;top:-7px}
+ .callout .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#FFB020;box-shadow:0 0 14px #FFB020;left:-7px;top:-7px}
  .callout .line{position:absolute;height:2px;background:rgba(255,255,255,.85);left:0;top:-1px;transform-origin:0 50%}
  .callout .lbl{position:absolute;padding:10px 18px;background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.7);border-radius:8px;backdrop-filter:blur(4px)}
  #fade{position:absolute;inset:0;background:#000;opacity:0}
- #flash{position:absolute;inset:0;background:#fff4e0;opacity:0}
+ #flash{position:absolute;inset:0;background:#fff0dc;opacity:0}
 </style>
 <script type="importmap">{"imports":{"three":"../node_modules/three/build/three.module.js","three/addons/":"../node_modules/three/examples/jsm/"}}</script>
 </head><body>
 <div id="ui">
  <div id="vig"></div>
- <div id="badge"><div class="pill">WHAT IF</div><div class="sub">EPISODIO 01 · LA LUNA</div></div>
+ <div id="badge"><div class="pill">WHAT IF</div><div class="sub">EPISODIO 02 · IL SOLE</div></div>
  <div id="callouts"></div>
  <div id="cap"></div>
  <div id="cta"><div class="l1">Segui per altri What If</div><div class="l2">nuovo episodio ogni settimana</div></div>
@@ -46,8 +46,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const W=1080,H=1920;
 const TL=await (await fetch('./timeline.json')).json();
 const S={}; for(const s of TL.sentences) S[s.id]=s;
-const T={ HOOK:0, DRIFT:S.drift.start, TIDES:S.tides.start, ROCHE:S.roche.start, RING:S.ring.start, RAIN:S.rain.start, WOBBLE:S.wobble.start, OUTRO:S.outro.start, CTA:S.cta.start, END:TL.total };
-T.BREAK = T.ROCHE + (T.RING-T.ROCHE)*0.72;
+const T={ HOOK:0, FUEL:S.fuel.start, SWELL:S.swell.start, INNER:S.inner.start, EARTH:S.earth.start,
+          ENGULF:S.engulf.start, NEBULA:S.nebula.start, DWARF:S.dwarf.start, CTA:S.cta.start, END:TL.total };
+T.COLLAPSE_END = T.NEBULA + Math.min(1.3,(T.DWARF-T.NEBULA)*0.4);
 
 // ---------- helpers
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -60,17 +61,18 @@ const u01=(t,a,b)=>clamp((t-a)/(b-a),0,1);
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const noise1=(t,s)=>Math.sin(t*1.7+s)*0.5+Math.sin(t*3.1+s*2.3)*0.3+Math.sin(t*6.3+s*0.7)*0.2;
 const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const CGET=(h)=>new THREE.Color(h);
 
 // ---------- renderer
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(1);renderer.setSize(W,H);
-renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.96;
 document.body.insertBefore(renderer.domElement,document.getElementById('ui'));
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(50,W/H,0.05,400);
+const camera=new THREE.PerspectiveCamera(50,W/H,0.05,600);
 const composer=new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene,camera));
-const bloom=new UnrealBloomPass(new THREE.Vector2(W,H),0.75,0.5,0.78);
+const bloom=new UnrealBloomPass(new THREE.Vector2(W,H),0.55,0.5,0.82);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
@@ -83,11 +85,8 @@ const [texEarth,texSpec,texNorm,texLights,texClouds,texMoon]=await Promise.all([
 
 function makeLavaTex(){
  const c=document.createElement('canvas');c.width=2048;c.height=1024;const g=c.getContext('2d');
- g.fillStyle='#000';g.fillRect(0,0,2048,1024);
- const rnd=mulberry32(1234);
- // hot spots
+ g.fillStyle='#000';g.fillRect(0,0,2048,1024);const rnd=mulberry32(1234);
  for(let i=0;i<34;i++){const x=rnd()*2048,y=120+rnd()*780,r=30+rnd()*110;const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(255,120,30,0.7)');gr.addColorStop(0.35,'rgba(180,40,8,0.35)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r);}
- // cracks
  g.lineCap='round';
  for(let i=0;i<520;i++){let x=rnd()*2048,y=rnd()*1024;const n=6+Math.floor(rnd()*22);let a=rnd()*Math.PI*2;const w=0.7+rnd()*2.0;
   g.beginPath();g.moveTo(x,y);for(let k=0;k<n;k++){a+=(rnd()-.5)*1.4;x+=Math.cos(a)*(8+rnd()*18);y+=Math.sin(a)*(8+rnd()*18);g.lineTo(x,y);}
@@ -98,223 +97,286 @@ function makeLavaTex(){
  g.globalCompositeOperation='source-over';
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
 }
-function makeCrackTex(){
- const c=document.createElement('canvas');c.width=1024;c.height=512;const g=c.getContext('2d');
- g.fillStyle='#000';g.fillRect(0,0,1024,512);const rnd=mulberry32(77);g.lineCap='round';
- const branch=(x,y,a,len,w,depth)=>{if(depth<=0||w<0.6)return;g.beginPath();g.moveTo(x,y);let cx=x,cy=y;const n=4+Math.floor(rnd()*6);for(let k=0;k<n;k++){a+=(rnd()-.5)*0.9;cx+=Math.cos(a)*len/n;cy+=Math.sin(a)*len/n;g.lineTo(cx,cy);if(rnd()<0.35)branch(cx,cy,a+(rnd()<.5?1:-1)*(0.6+rnd()*0.8),len*0.55,w*0.6,depth-1);}
-  g.shadowColor='rgba(255,255,255,0.9)';g.shadowBlur=14;g.strokeStyle='rgba(255,255,255,1)';g.lineWidth=w;g.stroke();g.shadowBlur=0;};
- for(let i=0;i<26;i++)branch(rnd()*1024,rnd()*512,rnd()*Math.PI*2,180+rnd()*260,5+rnd()*4,4);
- const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;return t;
+function makeVenusTex(){
+ const c=document.createElement('canvas');c.width=1024;c.height=512;const g=c.getContext('2d');const rnd=mulberry32(55);
+ g.fillStyle='#caa15a';g.fillRect(0,0,1024,512);
+ for(let i=0;i<140;i++){const y=rnd()*512;const h=6+rnd()*40;const sh=0.5+rnd()*0.5;g.fillStyle=`rgba(${200+rnd()*40|0},${150+rnd()*50|0},${70+rnd()*50|0},${0.08+rnd()*0.12})`;g.fillRect(0,y,1024,h);}
+ for(let i=0;i<60;i++){const x=rnd()*1024,y=rnd()*512,r=20+rnd()*90;const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,`rgba(240,210,150,${0.1+rnd()*0.12})`);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r);}
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
 }
 function makeSoftSprite(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(0.3,'rgba(255,255,255,0.6)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);}
-const texLava=makeLavaTex(), texCrack=makeCrackTex(), texSoft=makeSoftSprite();
+const texLava=makeLavaTex(), texVenus=makeVenusTex(), texSoft=makeSoftSprite();
 
-// ---------- lights & sky
-const sunDir=V(1.0,0.42,0.62).normalize();
-const sun=new THREE.DirectionalLight(0xfff2e0,2.7);sun.position.copy(sunDir).multiplyScalar(60);scene.add(sun);
-scene.add(new THREE.AmbientLight(0x2a3a55,0.35));
-{ // stars
- const rnd=mulberry32(99);const N=6000;const pos=new Float32Array(N*3),col=new Float32Array(N*3),siz=new Float32Array(N);
- for(let i=0;i<N;i++){const u=rnd()*2-1,ph=rnd()*Math.PI*2,r=Math.sqrt(1-u*u);pos[i*3]=r*Math.cos(ph)*150;pos[i*3+1]=u*150;pos[i*3+2]=r*Math.sin(ph)*150;
+// ---------- simplex noise (Ashima) for the sun surface
+const SNOISE=`
+vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+float snoise(vec3 v){const vec2 C=vec2(1.0/6.0,1.0/3.0);const vec4 D=vec4(0.0,0.5,1.0,2.0);
+ vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
+ vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.0-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);
+ vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
+ i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+ float n_=0.142857142857;vec3 ns=n_*D.wyz-D.xzx;
+ vec4 j=p-49.0*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.0*x_);
+ vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.0-abs(x)-abs(y);
+ vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);vec4 s0=floor(b0)*2.0+1.0;vec4 s1=floor(b1)*2.0+1.0;vec4 sh=-step(h,vec4(0.0));
+ vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+ vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+ vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+ vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);m=m*m;
+ return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}
+float fbm(vec3 p){float f=0.0,a=0.5;for(int i=0;i<5;i++){f+=a*snoise(p);p*=2.02;a*=0.5;}return f;}
+`;
+
+// ---------- lights
+const sunLight=new THREE.PointLight(0xfff0d8,3.0,0,0.0);scene.add(sunLight);
+scene.add(new THREE.AmbientLight(0x2a3048,0.35));
+const fill=new THREE.DirectionalLight(0x334466,0.25);fill.position.set(-4,3,6);scene.add(fill);
+
+// ---------- stars + nebulae backdrop
+{ const rnd=mulberry32(99);const N=6000;const pos=new Float32Array(N*3),col=new Float32Array(N*3),siz=new Float32Array(N);
+ for(let i=0;i<N;i++){const u=rnd()*2-1,ph=rnd()*Math.PI*2,r=Math.sqrt(1-u*u);pos[i*3]=r*Math.cos(ph)*200;pos[i*3+1]=u*200;pos[i*3+2]=r*Math.sin(ph)*200;
   const tt=rnd();const c=new THREE.Color().setHSL(tt<0.15?0.6:tt<0.25?0.08:0.0,tt<0.25?0.5:0,0.75+rnd()*0.25);col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;siz[i]=rnd()<0.08?3.2+rnd()*3:1.2+rnd()*1.6;}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('aSize',new THREE.BufferAttribute(siz,1));
  const m=new THREE.ShaderMaterial({uniforms:{tex:{value:texSoft}},vertexShader:`attribute float aSize;varying vec3 vC;void main(){vC=color;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=aSize*1.6;gl_Position=projectionMatrix*mv;}`,
   fragmentShader:`uniform sampler2D tex;varying vec3 vC;void main(){vec4 s=texture2D(tex,gl_PointCoord);gl_FragColor=vec4(vC*1.1,s.a*0.95);}`,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
  scene.add(new THREE.Points(g,m));
- // nebulae
  const neb=(x,y,z,c,s,o)=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:texSoft,color:c,transparent:true,opacity:o,depthWrite:false,blending:THREE.AdditiveBlending}));sp.position.set(x,y,z);sp.scale.set(s,s,1);scene.add(sp);};
- neb(-60,40,-110,0x3a2a7a,170,0.35);neb(50,-30,-120,0x1a3a6a,150,0.3);neb(20,70,-100,0x5a2a4a,120,0.22);
- const sunSp=new THREE.Sprite(new THREE.SpriteMaterial({map:texSoft,color:0xfff0d0,transparent:true,opacity:0.9,depthWrite:false,blending:THREE.AdditiveBlending}));sunSp.position.copy(sunDir).multiplyScalar(140);sunSp.scale.set(40,40,1);scene.add(sunSp);
+ neb(-90,50,-150,0x3a2a7a,230,0.3);neb(70,-40,-160,0x1a3a6a,200,0.26);neb(30,90,-140,0x4a2a5a,170,0.2);
 }
 
-// ---------- Earth
-const tideGroup=new THREE.Group();scene.add(tideGroup);
-const earthTilt=new THREE.Group();tideGroup.add(earthTilt);
-const earthSpin=new THREE.Group();earthTilt.add(earthSpin);
+// ---------- SUN
+const sunTint=new THREE.Color(0xfff1d2);
+const sunUniforms={uTime:{value:0},uColA:{value:new THREE.Color(0xffffff)},uColB:{value:new THREE.Color(0xff7a20)},uBright:{value:1.0},uScale:{value:4.0}};
+const sunMat=new THREE.ShaderMaterial({uniforms:sunUniforms,
+ vertexShader:`varying vec3 vPos;varying vec3 vWN;varying vec3 vWP;void main(){vPos=normalize(position);vWN=normalize(mat3(modelMatrix)*normal);vec4 wp=modelMatrix*vec4(position,1.0);vWP=wp.xyz;gl_Position=projectionMatrix*viewMatrix*wp;}`,
+ fragmentShader:SNOISE+`uniform float uTime;uniform vec3 uColA;uniform vec3 uColB;uniform float uBright;uniform float uScale;
+  varying vec3 vPos;varying vec3 vWN;varying vec3 vWP;
+  void main(){vec3 q=vPos*uScale;float flow=uTime*0.06;
+   float n=fbm(q+vec3(0.0,flow,0.0));n=n*0.5+0.5;
+   float gran=fbm(q*3.3+vec3(flow*1.7,0.0,flow));gran=gran*0.5+0.5;
+   float cell=pow(clamp(n*0.65+gran*0.45,0.0,1.0),1.9);
+   float lane=smoothstep(0.25,0.62,gran);
+   float hot=smoothstep(0.64,0.98,gran);
+   vec3 col=mix(uColB,uColA,cell);
+   col*=(0.5+0.6*lane);
+   col=mix(col,uColA*1.35,hot*0.5);
+   vec3 vd=normalize(cameraPosition-vWP);float limb=pow(clamp(dot(normalize(vWN),vd),0.0,1.0),0.75);
+   col*=(0.3+0.82*limb);col*=uBright;
+   gl_FragColor=vec4(col,1.0);}`});
+const sunGroup=new THREE.Group();scene.add(sunGroup);
+const sun=new THREE.Mesh(new THREE.SphereGeometry(1,128,128),sunMat);sunGroup.add(sun);
+// corona (backside rim)
+const coronaU={uColor:{value:new THREE.Color(0xff8a30)},uInt:{value:1.0}};
+const coronaMat=new THREE.ShaderMaterial({uniforms:coronaU,transparent:true,side:THREE.BackSide,depthWrite:false,blending:THREE.AdditiveBlending,
+ vertexShader:`varying vec3 vN;varying vec3 vP;void main(){vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vP=mv.xyz;gl_Position=projectionMatrix*mv;}`,
+ fragmentShader:`uniform vec3 uColor;uniform float uInt;varying vec3 vN;varying vec3 vP;void main(){vec3 vd=normalize(-vP);float rim=pow(clamp(1.0-dot(vN,vd),0.0,1.0),2.3)*1.6;gl_FragColor=vec4(uColor*rim*uInt,1.0);}`});
+const corona=new THREE.Mesh(new THREE.SphereGeometry(1.22,96,96),coronaMat);sunGroup.add(corona);
+const glowSpr=new THREE.Sprite(new THREE.SpriteMaterial({map:texSoft,color:0xffb060,transparent:true,opacity:0.6,depthWrite:false,blending:THREE.AdditiveBlending}));sunGroup.add(glowSpr);
+
+// ---------- orbit plane + planets
+const orbitPlane=new THREE.Group();orbitPlane.rotation.set(-0.5,0.2,0.0);scene.add(orbitPlane);
+function orbitRing(r,op){const seg=160;const pts=[];for(let i=0;i<=seg;i++){const a=i/seg*Math.PI*2;pts.push(V(r*Math.cos(a),0,r*Math.sin(a)));}
+ const g=new THREE.BufferGeometry().setFromPoints(pts);const m=new THREE.LineBasicMaterial({color:0x5c6a86,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false});const l=new THREE.Line(g,m);orbitPlane.add(l);return m;}
+const ringMats=[];
+const PL=[
+ {name:'mercury',r:3.35,size:0.11,a0:1.5,w:0.055,color:0x9a8c7e,tex:texMoon,emiss:0xff7030},
+ {name:'venus',  r:4.95,size:0.20,a0:2.35,w:0.040,color:0xd8b26a,tex:texVenus,emiss:0xff8030},
+ {name:'earth',  r:7.05,size:0.24,a0:0.62,w:0.030,color:0xffffff,tex:null,emiss:0xff5a20},
+ {name:'mars',   r:10.4,size:0.14,a0:-0.9,w:0.022,color:0xc05a30,tex:texMoon,emiss:0xff6030},
+];
+for(const p of PL) ringMats.push(orbitRing(p.r,0.5));
+
+// generic planet (not earth)
+function makePlanet(p){
+ const mat=new THREE.MeshStandardMaterial({map:p.tex,color:new THREE.Color(p.color),roughness:0.95,metalness:0,
+   emissive:new THREE.Color(p.emiss),emissiveIntensity:0});
+ const m=new THREE.Mesh(new THREE.SphereGeometry(p.size,48,48),mat);m.rotation.z=0.3;
+ const grp=new THREE.Group();grp.add(m);orbitPlane.add(grp);
+ return {grp,mesh:m,mat};
+}
+// EARTH (full)
 const earthUniforms={uSunDirView:{value:new THREE.Vector3(0,0,1)},uLavaMap:{value:texLava},uLavaAmt:{value:0},uScorch:{value:0},uLightsAmt:{value:1.0}};
-const earthMat=new THREE.MeshPhongMaterial({map:texEarth,specularMap:texSpec,specular:new THREE.Color(0x444444),shininess:18,normalMap:texNorm,normalScale:new THREE.Vector2(0.7,0.7),emissiveMap:texLights,emissive:new THREE.Color(0xffffff),emissiveIntensity:0.9});
-earthMat.onBeforeCompile=(sh)=>{Object.assign(sh.uniforms,earthUniforms);
- sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 uSunDirView;uniform sampler2D uLavaMap;uniform float uLavaAmt;uniform float uScorch;uniform float uLightsAmt;')
- .replace('#include <map_fragment>','#include <map_fragment>\n diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.07,0.05,0.045),uScorch);')
- .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n { float dayF=smoothstep(-0.12,0.18,dot(normalize(vNormal),uSunDirView)); totalEmissiveRadiance*=(1.0-dayF)*uLightsAmt; vec3 lava=texture2D(uLavaMap,vMapUv).rgb; totalEmissiveRadiance+=lava*uLavaAmt*1.15; }');};
-const earth=new THREE.Mesh(new THREE.SphereGeometry(1,160,160),earthMat);earthSpin.add(earth);
-const cloudMat=new THREE.MeshLambertMaterial({map:texClouds,transparent:true,opacity:1,depthWrite:false});
-const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.012,120,120),cloudMat);earthSpin.add(clouds);
-const atmoUniforms={uColor:{value:new THREE.Color(0x3d8bff)},uSunDir:{value:sunDir.clone()},uPow:{value:3.0},uInt:{value:1.0}};
-const atmoMat=new THREE.ShaderMaterial({uniforms:atmoUniforms,transparent:true,side:THREE.BackSide,depthWrite:false,blending:THREE.AdditiveBlending,
- vertexShader:`varying vec3 vN;varying vec3 vP;varying vec3 vWN;void main(){vN=normalize(normalMatrix*normal);vWN=normalize(mat3(modelMatrix)*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vP=mv.xyz;gl_Position=projectionMatrix*mv;}`,
- fragmentShader:`uniform vec3 uColor;uniform vec3 uSunDir;uniform float uPow;uniform float uInt;varying vec3 vN;varying vec3 vP;varying vec3 vWN;void main(){vec3 vd=normalize(-vP);float rim=pow(clamp(0.72-dot(vN,vd),0.0,1.0),uPow)*1.7;float day=clamp(dot(vWN,uSunDir)*1.6+0.55,0.08,1.0);gl_FragColor=vec4(uColor*rim*day*uInt,1.0);}`});
-const atmo=new THREE.Mesh(new THREE.SphereGeometry(1.085,96,96),atmoMat);earthTilt.add(atmo);
-// inner haze (front side rim)
-const hazeMat=new THREE.ShaderMaterial({uniforms:atmoUniforms,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
- vertexShader:atmoMat.vertexShader,fragmentShader:`uniform vec3 uColor;uniform vec3 uSunDir;uniform float uInt;varying vec3 vN;varying vec3 vP;varying vec3 vWN;void main(){vec3 vd=normalize(-vP);float f=pow(1.0-clamp(dot(vN,vd),0.0,1.0),3.2)*0.9;float day=clamp(dot(vWN,uSunDir)*1.4+0.4,0.05,1.0);gl_FragColor=vec4(uColor*f*day*uInt,1.0);}`});
-const haze=new THREE.Mesh(new THREE.SphereGeometry(1.018,96,96),hazeMat);earthSpin.add(haze);
-// axis line
-const axisMat=new THREE.MeshBasicMaterial({color:0x7fe9ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
-const axis=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,3.4,8),axisMat);earthTilt.add(axis);
-const axisCap=new THREE.Mesh(new THREE.ConeGeometry(0.05,0.14,12),axisMat);axisCap.position.y=1.72;earthTilt.add(axisCap);
-const TILT=23.4*Math.PI/180;
-
-// ---------- orbit group (moon, fragments, dust)
-const orbit=new THREE.Group();orbit.rotation.set(-0.22,0.18,0.0);scene.add(orbit);
-const moonMat=new THREE.MeshStandardMaterial({map:texMoon,roughness:0.96,metalness:0,bumpMap:texMoon,bumpScale:0.006,emissiveMap:texCrack,emissive:new THREE.Color(0xff6a1a),emissiveIntensity:0});
-const moonGroup=new THREE.Group();orbit.add(moonGroup);
-const moon=new THREE.Mesh(new THREE.SphereGeometry(0.30,96,96),moonMat);moonGroup.add(moon);
-const MOON_R=0.30;
-
-// fragments
-const NF=1000;const rnd=mulberry32(2024);
-const frag=[];
-for(let i=0;i<NF;i++){
- const u=rnd()*2-1,ph=rnd()*Math.PI*2,rr=Math.cbrt(rnd())*MOON_R*0.9;const rs=Math.sqrt(1-u*u);
- const off=V(rs*Math.cos(ph)*rr,rs*Math.sin(ph)*rr,u*rr);
- const big=rnd()<0.07;const size=big?0.032+rnd()*0.026:0.006+Math.pow(rnd(),2.0)*0.022;
- frag.push({off,size,r:2.05+rnd()*0.85,s:(rnd()*2-1),z:(rnd()*2-1)*0.06,zf:(rnd()*2-1)*0.5,w:0.12+rnd()*0.1,
-  tf:T.RAIN-0.4+(T.WOBBLE-T.RAIN+4.0)*Math.pow(rnd(),0.85),Tf:1.1+rnd()*1.7,
-  ax:V(rnd()-.5,rnd()-.5,rnd()-.5).normalize(),rot:(rnd()-.5)*4,ph0:rnd()*Math.PI*2});
+function makeEarth(size){
+ const grp=new THREE.Group();orbitPlane.add(grp);
+ const tilt=new THREE.Group();grp.add(tilt);tilt.rotation.z=-23.4*Math.PI/180;
+ const spin=new THREE.Group();tilt.add(spin);
+ const mat=new THREE.MeshPhongMaterial({map:texEarth,specularMap:texSpec,specular:CGET(0x444444),shininess:18,normalMap:texNorm,normalScale:new THREE.Vector2(0.7,0.7),emissiveMap:texLights,emissive:CGET(0xffffff),emissiveIntensity:0.9});
+ mat.onBeforeCompile=(sh)=>{Object.assign(sh.uniforms,earthUniforms);
+  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 uSunDirView;uniform sampler2D uLavaMap;uniform float uLavaAmt;uniform float uScorch;uniform float uLightsAmt;')
+  .replace('#include <map_fragment>','#include <map_fragment>\n diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.07,0.05,0.045),uScorch);')
+  .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n { float dayF=smoothstep(-0.12,0.18,dot(normalize(vNormal),uSunDirView)); totalEmissiveRadiance*=(1.0-dayF)*uLightsAmt; vec3 lava=texture2D(uLavaMap,vMapUv).rgb; totalEmissiveRadiance+=lava*uLavaAmt*1.15; }');};
+ const earth=new THREE.Mesh(new THREE.SphereGeometry(size,128,128),mat);spin.add(earth);
+ const cloudMat=new THREE.MeshLambertMaterial({map:texClouds,transparent:true,opacity:1,depthWrite:false});
+ const clouds=new THREE.Mesh(new THREE.SphereGeometry(size*1.012,96,96),cloudMat);spin.add(clouds);
+ const atmoU={uColor:{value:CGET(0x3d8bff)},uSunDir:{value:new THREE.Vector3(0,0,1)},uPow:{value:3.0},uInt:{value:1.0}};
+ const atmoMat=new THREE.ShaderMaterial({uniforms:atmoU,transparent:true,side:THREE.BackSide,depthWrite:false,blending:THREE.AdditiveBlending,
+  vertexShader:`varying vec3 vN;varying vec3 vP;varying vec3 vWN;void main(){vN=normalize(normalMatrix*normal);vWN=normalize(mat3(modelMatrix)*normal);vec4 mv=modelViewMatrix*vec4(position,1.0);vP=mv.xyz;gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform vec3 uColor;uniform vec3 uSunDir;uniform float uPow;uniform float uInt;varying vec3 vN;varying vec3 vP;varying vec3 vWN;void main(){vec3 vd=normalize(-vP);float rim=pow(clamp(0.72-dot(vN,vd),0.0,1.0),uPow)*1.7;float day=clamp(dot(vWN,uSunDir)*1.6+0.55,0.08,1.0);gl_FragColor=vec4(uColor*rim*day*uInt,1.0);}`});
+ const atmo=new THREE.Mesh(new THREE.SphereGeometry(size*1.085,72,72),atmoMat);tilt.add(atmo);
+ return {grp,tilt,spin,earth,mat,cloudMat,clouds,atmoU};
 }
-for(const f of frag){const fr=Math.sqrt((f.r-1.03)/(f.r-1.0));f.tImp=f.tf+f.Tf*fr;}
-const rockGeo=(()=>{const g=new THREE.IcosahedronGeometry(1,1);const p=g.attributes.position;const r2=mulberry32(5);for(let i=0;i<p.count;i++){const k=0.72+r2()*0.56;p.setXYZ(i,p.getX(i)*k,p.getY(i)*k,p.getZ(i)*k);}g.computeVertexNormals();return g;})();
-const rockMat=new THREE.MeshStandardMaterial({map:texMoon,color:0xd0cbc4,roughness:1,metalness:0,emissive:new THREE.Color(0xff5a10),emissiveIntensity:0});
-const rocks=new THREE.InstancedMesh(rockGeo,rockMat,NF);rocks.frustumCulled=false;orbit.add(rocks);
-const streakMat=new THREE.MeshBasicMaterial({color:0xffa040,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false});
-const streaks=new THREE.InstancedMesh(new THREE.CylinderGeometry(0.35,1,1,6,1,true),streakMat,NF);streaks.frustumCulled=false;orbit.add(streaks);
-const flashMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:1,blending:THREE.AdditiveBlending,depthWrite:false});
-const flashes=new THREE.InstancedMesh(new THREE.SphereGeometry(1,12,12),flashMat,NF);flashes.frustumCulled=false;orbit.add(flashes);
-flashes.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(NF*3),3);
-// dust ring
-let dustMat;{const N=14000;const pos=new Float32Array(N*3);const r3=mulberry32(31);for(let i=0;i<N;i++){const r=2.0+r3()*0.95;const a=r3()*Math.PI*2;pos[i*3]=r*Math.cos(a);pos[i*3+1]=r*Math.sin(a);pos[i*3+2]=(r3()*2-1)*(r3()*2-1)*0.07;}
- const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));dustMat=new THREE.PointsMaterial({color:0xd8d0c8,size:0.014,map:texSoft,transparent:true,opacity:0,depthWrite:false,sizeAttenuation:true});orbit.add(new THREE.Points(g,dustMat));}
+const planets={};
+for(const p of PL){ if(p.name==='earth') planets.earth=makeEarth(p.size); else planets[p.name]=makePlanet(p); }
 
-// ---------- state computation
-const _m=new THREE.Matrix4(),_q=new THREE.Quaternion(),_p=new THREE.Vector3(),_s=new THREE.Vector3(),_e=new THREE.Euler(),_up=V(0,1,0),_dir=new THREE.Vector3();
-const zeroM=new THREE.Matrix4().makeScale(0,0,0);
-const moonBreakLocal=new THREE.Vector3();let thetaBreak=0;
-function moonDist(t){
- if(t<T.DRIFT)return 7.0;
- if(t<T.TIDES)return lerp(7.0,5.0,easeIn(u01(t,T.DRIFT,T.TIDES))*0.5+u01(t,T.DRIFT,T.TIDES)*0.5);
- if(t<T.ROCHE)return lerp(5.0,3.1,u01(t,T.TIDES,T.ROCHE));
- return lerp(3.1,2.45,u01(t,T.ROCHE,T.BREAK));
+// ---------- planetary nebula (appears at collapse)
+let nebula,nebMat;
+{ const N=9000;const pos=new Float32Array(N*3),col=new Float32Array(N*3),spd=new Float32Array(N);const r=mulberry32(321);
+ const cA=CGET(0x38e6c8),cB=CGET(0xff5ad0),cC=CGET(0x6aa8ff),cD=CGET(0xffd27a);
+ for(let i=0;i<N;i++){const u=r()*2-1,ph=r()*Math.PI*2,rr=Math.sqrt(1-u*u);
+  const shell=0.72+0.28*r();const dx=rr*Math.cos(ph),dy=u,dz=rr*Math.sin(ph);
+  pos[i*3]=dx*shell;pos[i*3+1]=dy*shell*0.82;pos[i*3+2]=dz*shell;
+  const k=r();const c=k<0.4?cA:(k<0.7?cC:(k<0.9?cB:cD));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;spd[i]=0.78+r()*0.5;}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('aSpd',new THREE.BufferAttribute(spd,1));
+ nebMat=new THREE.ShaderMaterial({uniforms:{tex:{value:texSoft},uRad:{value:0},uOp:{value:0},uPt:{value:1}},
+  vertexShader:`attribute float aSpd;uniform float uRad;uniform float uPt;varying vec3 vC;varying float vF;void main(){vC=color;vF=aSpd;vec3 p=position*uRad*aSpd;vec4 mv=modelViewMatrix*vec4(p,1.0);gl_PointSize=uPt*(300.0/-mv.z);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform sampler2D tex;uniform float uOp;varying vec3 vC;void main(){vec4 s=texture2D(tex,gl_PointCoord);gl_FragColor=vec4(vC*0.72,s.a*uOp);}`,
+  vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+ nebula=new THREE.Points(g,nebMat);scene.add(nebula);
 }
-const moonTheta=(t)=>Math.PI/2+0.014*Math.min(t,T.BREAK)-0.15;
-function fragPos(f,t,out){ // local orbit coords; returns r (or -1 if not alive)
- const tau=t-T.BREAK; if(tau<0)return -1;
- if(t>=f.tImp)return -1;
- const spread=easeOut(tau/7.0);const settle=sm(tau/1.6);
- let r=f.r,ang=thetaBreak+f.s*spread*Math.PI*1.05+f.w*tau,z=f.z;
- if(t>f.tf){const p=clamp((t-f.tf)/f.Tf,0,1);r=f.r-(f.r-1.0)*p*p;ang+=1.8*p*p*p;z=z*(1-0.6*p)+f.zf*p*p;}
- const bx=r*Math.cos(ang),by=r*Math.sin(ang);
- out.set(lerp(moonBreakLocal.x+f.off.x,bx,settle),lerp(moonBreakLocal.y+f.off.y,by,settle),lerp(moonBreakLocal.z+f.off.z,z,settle));
- return r;
+
+// ---------- engulf timing (precompute by scanning sunR) ----------
+function sunR(t){
+ if(t<T.SWELL) return 1.0;
+ if(t<T.INNER) return lerp(1.0,2.6,easeIn(u01(t,T.SWELL,T.INNER)));
+ if(t<T.EARTH) return lerp(2.6,5.4,easeInOut(u01(t,T.INNER,T.EARTH)));
+ if(t<T.ENGULF) return lerp(5.4,6.5,easeInOut(u01(t,T.EARTH,T.ENGULF)));
+ if(t<T.NEBULA) return lerp(6.5,7.9,easeInOut(u01(t,T.ENGULF,T.NEBULA)));
+ if(t<T.COLLAPSE_END) return lerp(7.9,0.17,easeOut(u01(t,T.NEBULA,T.COLLAPSE_END)));
+ return 0.17;
 }
-let lastMoonDirWorld=V(0,1,0);
-const state={moonWorld:new THREE.Vector3(0,7,0),bulgeTip:new THREE.Vector3()};
+const engulfT={};
+for(const p of PL){ engulfT[p.name]=Infinity;
+ for(let t=0;t<=T.NEBULA;t+=0.02){ if(sunR(t)>=p.r-p.size*0.6){engulfT[p.name]=t;break;} } }
+
+// ---------- sun tint over time
+function sunColors(t){
+ const red=sm(u01(t,T.SWELL,T.ENGULF));           // 0 yellow-white -> 1 deep red
+ if(t<T.NEBULA){
+  const a=CGET(0xffe6ac).lerp(CGET(0xffb858),red*0.7).lerp(CGET(0xff8238),Math.max(0,red-0.45)/0.55);
+  const b=CGET(0xca7322).lerp(CGET(0xa83c12),red).lerp(CGET(0x6e2406),Math.max(0,red-0.5)/0.5);
+  return {a,b,corona:CGET(0xff9636).lerp(CGET(0xf2420f),red),light:CGET(0xffe4bc).lerp(CGET(0xffa858),red)};
+ } else {
+  // white dwarf: hot blue-white
+  const k=sm(u01(t,T.NEBULA,T.DWARF));
+  const a=CGET(0xfff0d0).lerp(CGET(0xe6f0ff),k);
+  const b=CGET(0xc85a24).lerp(CGET(0x86a8e0),k);
+  return {a,b,corona:CGET(0xf2420f).lerp(CGET(0x8ab4ff),k),light:CGET(0xffc090).lerp(CGET(0xcfe0ff),k)};
+ }
+}
+
+// ---------- state
+const _tmp=new THREE.Vector3(),_tmp2=new THREE.Vector3();
+const state={sunR:1,positions:{}};
+function planetGroupOf(name){return name==='earth'?planets.earth.grp:planets[name].grp;}
 
 function updateWorld(t){
- // Earth spin & tilt/wobble
- const wob=t>=T.OUTRO?0:0.36*sm(u01(t,T.WOBBLE,T.WOBBLE+5.5))*(t>=T.WOBBLE?1:0);
- const wph=(t-T.WOBBLE)*1.9;
- earthTilt.rotation.set(wob*Math.cos(wph)*0.8,0,-TILT+wob*Math.sin(wph));
- earthSpin.rotation.y=2.6+0.045*t;
- clouds.rotation.y=0.012*t;
- // moon
- const breakNow=t>=T.BREAK&&t<T.OUTRO;
- const d=t>=T.OUTRO?7.0:moonDist(t);
- const th=t>=T.OUTRO?moonTheta(0)+0.1:moonTheta(t);
- moonGroup.position.set(d*Math.cos(th),d*Math.sin(th),0);
- moonGroup.visible=!breakNow;
- // moon stretched toward Earth before break
- const stretch=t<T.BREAK?1+0.28*easeIn(u01(t,T.ROCHE,T.BREAK)):1;
- _dir.copy(moonGroup.position).negate().normalize();
- moonGroup.quaternion.setFromUnitVectors(V(1,0,0),_dir);moonGroup.scale.set(stretch,1/Math.sqrt(stretch),1/Math.sqrt(stretch));
- moon.rotation.set(0.3,1.2+0.02*t,0);
- const crack=t<T.BREAK?Math.pow(u01(t,T.ROCHE+0.2,T.BREAK),1.6):0;
- moonMat.emissiveIntensity=crack*(2.2+0.8*Math.sin(t*23)*crack);
- moonGroup.updateMatrixWorld(true);
- state.moonWorld.setFromMatrixPosition(moonGroup.matrixWorld);
- if(t<T.BREAK){moonBreakLocal.copy(moonGroup.position);thetaBreak=th;}
- else if(t<T.OUTRO){const dd=moonDist(T.BREAK),tt=moonTheta(T.BREAK);moonBreakLocal.set(dd*Math.cos(tt),dd*Math.sin(tt),0);thetaBreak=tt;}
- // tidal bulge
- let b=0;
- if(t<T.ROCHE)b=0.13*sm(u01(t,T.TIDES,T.ROCHE-1.0));
- else if(t<T.BREAK)b=lerp(0.13,0.2,u01(t,T.ROCHE,T.BREAK));
- else b=0.2*(1-sm(u01(t,T.BREAK,T.BREAK+3.0)));
- if(t>=T.OUTRO)b=0;
- if(t<T.BREAK||t>=T.OUTRO){lastMoonDirWorld.copy(state.moonWorld).normalize();}
- tideGroup.quaternion.setFromUnitVectors(V(1,0,0),lastMoonDirWorld);
- tideGroup.scale.set(1+b,1-b*0.38,1-b*0.38);
- state.bulgeTip.copy(lastMoonDirWorld).multiplyScalar(1+b+0.05);
- // lava / scorch / atmosphere
- const lava=t>=T.OUTRO?0:sm(u01(t,T.RAIN+0.6,T.RAIN+5.2));
- earthUniforms.uLavaAmt.value=lava*1.0;earthUniforms.uScorch.value=lava*0.85;earthUniforms.uLightsAmt.value=1-lava;
- atmoUniforms.uColor.value.setHex(0x3d8bff).lerp(new THREE.Color(0xff6a20),lava);
- atmoUniforms.uInt.value=1+0.5*lava;
- cloudMat.opacity=1-0.65*lava;cloudMat.color.setHex(0xffffff).lerp(new THREE.Color(0x5a4a40),lava);
- axisMat.opacity=t>=T.OUTRO?0:0.9*sm(u01(t,T.WOBBLE+0.4,T.WOBBLE+1.6));
- // fragments
- const tau=t-T.BREAK;
- rockMat.emissiveIntensity=tau>0?0.55*Math.exp(-tau/1.2):0;
- const alive=t>=T.BREAK&&t<T.OUTRO;
- for(let i=0;i<NF;i++){const f=frag[i];
-  let r=alive?fragPos(f,t,_p):-1;
-  if(r<0){rocks.setMatrixAt(i,zeroM);streaks.setMatrixAt(i,zeroM);}
-  else{
-   _q.setFromAxisAngle(f.ax,f.ph0+f.rot*t);_s.setScalar(f.size);_m.compose(_p,_q,_s);rocks.setMatrixAt(i,_m);
-   if(t>f.tf&&r<1.75){const pp=new THREE.Vector3();fragPos(f,t-1/40,pp);const vel=_p.clone().sub(pp);const sp=vel.length();const len=clamp(sp*8,0.04,0.42)*(1-u01(r,1.55,1.75));
-    const dir=vel.normalize();_q.setFromUnitVectors(_up,dir);const pos=_p.clone().addScaledVector(dir,-len*0.5);_s.set(f.size*0.6,len,f.size*0.6);_m.compose(pos,_q,_s);streaks.setMatrixAt(i,_m);}
-   else streaks.setMatrixAt(i,zeroM);
-  }
-  // flash
-  const fp=(t-f.tImp)/0.6;
-  if(alive&&fp>=0&&fp<1){const ang=thetaBreak+f.s*Math.PI*1.05+f.w*(f.tImp-T.BREAK)+1.8;fragPos(f,f.tImp-0.001,_p);_p.normalize().multiplyScalar(1.02);
-   const sc=(0.012+f.size*0.9)*(1+2.0*fp)*(1-fp*0.4);_q.identity();_s.setScalar(sc);_m.compose(_p,_q,_s);flashes.setMatrixAt(i,_m);const k=Math.pow(1-fp,1.6);flashes.setColorAt(i,new THREE.Color(1*k,0.6*k,0.25*k));}
-  else{flashes.setMatrixAt(i,zeroM);}
+ sunUniforms.uTime.value=t;
+ const R=sunR(t);state.sunR=R;
+ sunGroup.scale.setScalar(R);
+ const col=sunColors(t);
+ sunUniforms.uColA.value.copy(col.a);sunUniforms.uColB.value.copy(col.b);
+ coronaU.uColor.value.copy(col.corona);
+ sunLight.color.copy(col.light);
+ // luminosity: swells bright, white dwarf tiny but hot
+ const lum = t<T.NEBULA ? lerp(3.0,6.5,sm(u01(t,T.SWELL,T.ENGULF))) : lerp(6.5,1.3,sm(u01(t,T.NEBULA,T.DWARF)));
+ sunLight.intensity=lum; sunUniforms.uBright.value = t<T.NEBULA?0.72:1.05;
+ coronaU.uInt.value = t<T.NEBULA?lerp(0.5,0.95,sm(u01(t,T.SWELL,T.ENGULF))):0.45;
+ const gs=R*(t<T.NEBULA?2.9:13.0);glowSpr.scale.set(gs,gs,1);
+ glowSpr.material.color.copy(col.corona);glowSpr.material.opacity=t<T.NEBULA?0.32:0.28;
+
+ // planets
+ for(const p of PL){
+  const grp=planetGroupOf(p.name);
+  const a=p.a0+p.w*t;grp.position.set(p.r*Math.cos(a),0,p.r*Math.sin(a));
+  grp.getWorldPosition(_tmp);state.positions[p.name]=_tmp.clone();
+  const te=engulfT[p.name];const gone=t>=te;
+  grp.visible=!gone;
+  // heat emissive as sun approaches (time-based)
+  const heat= isFinite(te)? sm(u01(t,te-2.6,te)) : 0;
+  if(p.name!=='earth'){ planets[p.name].mat.emissiveIntensity=heat*2.2; }
  }
- rocks.instanceMatrix.needsUpdate=true;streaks.instanceMatrix.needsUpdate=true;flashes.instanceMatrix.needsUpdate=true;flashes.instanceColor.needsUpdate=true;
- dustMat.opacity=alive?0.75*sm(u01(tau,1.5,6.5))*(1-sm(u01(t,T.RAIN+0.5,T.RAIN+5.5))):0;
+ // EARTH specifics
+ const E=planets.earth;const te=engulfT.earth;
+ E.spin.rotation.y=2.6+0.05*t;E.clouds.rotation.y=0.015*t;
+ // sun dir (world) at earth = toward origin
+ E.grp.getWorldPosition(_tmp);const sdir=_tmp.clone().negate().normalize();
+ E.atmoU.uSunDir.value.copy(sdir);
+ // heat/scorch ramp up to engulf
+ const heatE=sm(u01(t,T.EARTH+0.4,Math.min(te,T.ENGULF+1.2)));
+ earthUniforms.uLavaAmt.value=heatE;earthUniforms.uScorch.value=heatE*0.9;earthUniforms.uLightsAmt.value=1-heatE;
+ E.cloudMat.opacity=1-0.9*heatE;E.cloudMat.color.copy(CGET(0xffffff).lerp(CGET(0x6a5248),heatE));
+ E.atmoU.uColor.value.copy(CGET(0x3d8bff).lerp(CGET(0xff6a20),heatE));E.atmoU.uInt.value=1+0.6*heatE;
+
+ // orbit rings fade as sun swallows / nebula
+ const ringFade=1-sm(u01(t,T.ENGULF,T.NEBULA+0.5));
+ for(let i=0;i<ringMats.length;i++){ const gone=t>=engulfT[PL[i].name]; ringMats[i].opacity=(gone?0:1)*0.5*ringFade; }
+
+ // nebula
+ if(t>=T.NEBULA){
+  const age=t-T.NEBULA;
+  nebMat.uniforms.uRad.value=lerp(0.9,20.0,easeOut(u01(t,T.NEBULA,T.END+1.5)));
+  const op=Math.min(sm(u01(age,0.2,2.6)),1-sm(u01(t,T.DWARF+1.6,T.END+0.6)));
+  nebMat.uniforms.uOp.value=op*0.5;
+  nebMat.uniforms.uPt.value=lerp(1.6,0.6,u01(t,T.NEBULA,T.END));
+  nebula.rotation.y=0.05*age;nebula.visible=true;
+ } else { nebMat.uniforms.uOp.value=0;nebula.visible=false; }
 }
 
 // ---------- camera shots
-const M=()=>state.moonWorld.clone();
+const SUN=()=>new THREE.Vector3(0,0,0);
+const P=(n)=>state.positions[n]?state.positions[n].clone():new THREE.Vector3();
 const shots=[
- {t0:T.HOOK,t1:T.DRIFT,fov:62,shake:0.0,cam:(u)=>({pos:V(0,-0.75+0.1*u,4.6-0.35*u),tgt:V(0,1.75+0.1*u,0)})},
- {t0:T.DRIFT,t1:T.DRIFT+3.6,fov:62,shake:0.0,cam:(u)=>{const m=M();return{pos:m.clone().add(V(0.55-0.25*u,1.35,1.45)),tgt:m.clone().add(V(0,-1.15-0.2*u,0))}}},
- {t0:T.DRIFT+3.6,t1:T.TIDES,fov:54,shake:0.0,cam:(u)=>({pos:V(2.6-0.5*u,1.9+0.3*u,6.2-0.8*u),tgt:V(0,1.9-0.2*u,0)})},
- {t0:T.TIDES,t1:T.TIDES+3.6,fov:72,shake:0.004,cam:(u)=>{const m=M();return{pos:V(1.45-0.1*u,0.32+0.15*u,1.35),tgt:m.clone().multiplyScalar(0.75).lerp(V(0,1.6,0),0.25)}}},
- {t0:T.TIDES+3.6,t1:T.ROCHE,fov:58,shake:0.005,cam:(u)=>({pos:V(0.3,-2.3+0.3*u,4.1-0.4*u),tgt:V(0,0.75+0.15*u,0)})},
- {t0:T.ROCHE,t1:T.ROCHE+3.0,fov:48,shake:0.006,cam:(u)=>{const m=M();return{pos:m.clone().add(V(0.6-0.1*u,0.18,0.78-0.08*u)),tgt:m}}},
- {t0:T.ROCHE+3.0,t1:T.RING,fov:56,shake:0.008,cam:(u)=>{const m=M();return{pos:V(1.3+0.3*u,0.4+0.1*u,3.5+0.35*u),tgt:m.clone().lerp(V(0,0,0),0.42+0.1*u)}}},
- {t0:T.RING,t1:T.RAIN,fov:50,shake:0.0,cam:(u)=>({pos:V(4.6-1.0*u,-2.1+0.9*u,4.6+1.0*u),tgt:V(0,0.25,0)})},
- {t0:T.RAIN,t1:T.RAIN+3.3,fov:56,shake:0.006,cam:(u)=>({pos:V(0.45-0.1*u,-0.7+0.3*u,3.3-0.4*u),tgt:V(0,0.75,0)})},
- {t0:T.RAIN+3.3,t1:T.WOBBLE,fov:60,shake:0.009,cam:(u)=>({pos:V(1.15-0.1*u,0.55+0.15*u,1.95-0.2*u),tgt:V(-0.25,0.45,0)})},
- {t0:T.WOBBLE,t1:T.OUTRO,fov:50,shake:0.0,cam:(u)=>({pos:V(0.2-0.4*u,0.3+0.1*u,5.0-0.5*u),tgt:V(0,0.25,0)})},
- {t0:T.OUTRO,t1:T.END+1,fov:60,shake:0.0,cam:(u)=>({pos:V(0,-0.45+0.1*u,4.5+1.3*u),tgt:V(0,1.35+0.2*u,0)})},
+ // hook: wide system, slow push-in
+ {t0:T.HOOK,t1:T.FUEL,fov:58,shake:0,cam:(u)=>({pos:V(0.8,3.6-0.5*u,12.5-1.2*u),tgt:V(0,0.2,0)})},
+ // fuel: close on sun surface
+ {t0:T.FUEL,t1:T.SWELL,fov:48,shake:0.002,cam:(u)=>({pos:V(-1.4+0.3*u,0.5,3.0-0.25*u),tgt:V(0,0,0)})},
+ // swell: pull back as it grows + reddens
+ {t0:T.SWELL,t1:T.INNER,fov:56,shake:0.003,cam:(u)=>({pos:V(1.2,1.6+0.6*u,6.5+2.2*u),tgt:V(0,0,0)})},
+ // inner: watch Venus side get swallowed
+ {t0:T.INNER,t1:T.EARTH,fov:54,shake:0.006,cam:(u)=>({pos:V(2.6-0.4*u,2.7+0.3*u,9.6-0.5*u),tgt:V(0.3,-0.1,0.2)})},
+ // earth (a): approach Earth with looming sun behind
+ {t0:T.EARTH,t1:T.EARTH+3.6,fov:46,shake:0.005,cam:(u)=>{const e=P('earth');return {pos:e.clone().add(V(0.3-0.2*u,0.25,1.15-0.15*u)),tgt:e}}},
+ // earth (b): Earth melting, sun filling background
+ {t0:T.EARTH+3.6,t1:T.ENGULF,fov:50,shake:0.008,cam:(u)=>{const e=P('earth');return {pos:e.clone().add(V(0.55+0.2*u,-0.25,0.95)),tgt:e.clone().lerp(SUN(),0.18)}}},
+ // engulf: sun overtakes Earth, big flash
+ {t0:T.ENGULF,t1:T.NEBULA,fov:58,shake:0.012,cam:(u)=>{const e=P('earth');return {pos:e.clone().add(V(1.0+0.6*u,0.6+0.3*u,2.1+1.2*u)),tgt:SUN().lerp(e,0.3-0.3*u)}}},
+ // nebula (a): wide, shell expanding
+ {t0:T.NEBULA,t1:T.DWARF,fov:60,shake:0,cam:(u)=>({pos:V(0.5,2.0+1.0*u,13.0+5.0*u),tgt:V(0,0,0)})},
+ // dwarf: close on the tiny white dwarf
+ {t0:T.DWARF,t1:T.CTA,fov:40,shake:0,cam:(u)=>({pos:V(0.2-0.2*u,0.4,5.5+2.0*u),tgt:V(0,0,0)})},
+ // cta: pull back through nebula
+ {t0:T.CTA,t1:T.END+1,fov:58,shake:0,cam:(u)=>({pos:V(0,1.0+0.6*u,9.0+6.0*u),tgt:V(0,0.2,0)})},
 ];
 function updateCamera(t){
  let sh=shots[shots.length-1];for(const s of shots){if(t>=s.t0&&t<s.t1){sh=s;break;}}
  const u=easeInOut(u01(t,sh.t0,sh.t1));const c=sh.cam(u);
  camera.position.copy(c.pos);camera.lookAt(c.tgt);camera.fov=sh.fov;camera.updateProjectionMatrix();
  let amp=sh.shake;
- const db=t-T.BREAK;if(db>-0.15&&db<2.5)amp+=0.06*Math.exp(-Math.max(db,0)/0.75)*(db<0?(db+0.15)/0.15:1);
- if(amp>0){_e.set(noise1(t*4.1,1)*amp,noise1(t*3.7,7)*amp,noise1(t*5.3,3)*amp*0.6);const q=new THREE.Quaternion().setFromEuler(_e);camera.quaternion.multiply(q);}
+ const db=t-engulfT.earth;if(db>-1.6&&db<1.8)amp+=0.055*Math.exp(-Math.abs(db)/0.7);
+ if(amp>0){const e=new THREE.Euler(noise1(t*4.1,1)*amp,noise1(t*3.7,7)*amp,noise1(t*5.3,3)*amp*0.6);const q=new THREE.Quaternion().setFromEuler(e);camera.quaternion.multiply(q);}
  camera.updateMatrixWorld(true);
- earthUniforms.uSunDirView.value.copy(sunDir).transformDirection(camera.matrixWorldInverse);
+ // earth day/night terminator in view space
+ const E=planets.earth;E.grp.getWorldPosition(_tmp);const sdv=_tmp.clone().negate().normalize().transformDirection(camera.matrixWorldInverse);
+ earthUniforms.uSunDirView.value.copy(sdv);
 }
 
 // ---------- UI
 const capEl=document.getElementById('cap'),ctaEl=document.getElementById('cta'),fadeEl=document.getElementById('fade'),flashEl=document.getElementById('flash'),calloutsEl=document.getElementById('callouts');
 const callouts=[
- {t0:T.DRIFT+0.9,t1:T.DRIFT+3.3,text:'OGGI: +3,8 CM / ANNO',anchor:()=>M(),dx:-260,dy:220},
- {t0:T.TIDES+0.9,t1:T.TIDES+5.8,text:'MAREE: ONDE DI 300+ M',anchor:()=>state.bulgeTip.clone(),dx:-300,dy:260},
- {t0:T.ROCHE+0.6,t1:T.BREAK-0.3,text:'LIMITE DI ROCHE · 18.000 KM',anchor:()=>M(),dx:-230,dy:-330},
- {t0:T.RING+1.3,t1:T.RAIN-0.5,text:'ANELLO DI DETRITI',anchor:()=>{const a=thetaBreak-0.9;const p=V(2.5*Math.cos(a),2.5*Math.sin(a),0);return orbit.localToWorld(p)},dx:-200,dy:-240},
- {t0:T.RAIN+1.0,t1:T.WOBBLE-0.6,text:'SUPERFICIE: OCEANO DI LAVA',anchor:()=>V(-0.3,0.65,0.7),dx:-150,dy:-320},
- {t0:T.WOBBLE+1.3,t1:T.OUTRO-0.6,text:'ASSE: OSCILLAZIONE ±30°',anchor:()=>{const p=V(0,1.75,0);return earthTilt.localToWorld(p)},dx:160,dy:-230},
+ {t0:T.FUEL+0.9,t1:T.SWELL-0.4,text:'OGGI · STELLA G · 5.500 °C',anchor:()=>SUN(),dx:-280,dy:230},
+ {t0:T.SWELL+1.2,t1:T.INNER-0.4,text:'FUSIONE DELL’ELIO NEL GUSCIO',anchor:()=>SUN(),dx:-300,dy:-300},
+ {t0:T.INNER+0.6,t1:T.EARTH-0.5,text:'MERCURIO E VENERE: INGHIOTTITI',anchor:()=>P('venus'),dx:-250,dy:260},
+ {t0:T.EARTH+1.0,t1:T.ENGULF-0.4,text:'TERRA · +1000× IRRAGGIAMENTO',anchor:()=>P('earth'),dx:-170,dy:-300},
+ {t0:T.ENGULF+0.6,t1:T.NEBULA-0.4,text:'RAGGIO ≈ 1 UA · 100× IL SOLE',anchor:()=>SUN(),dx:140,dy:-320},
+ {t0:T.NEBULA+1.0,t1:T.DWARF-0.3,text:'NEBULOSA PLANETARIA',anchor:()=>V(2.0,2.2,0),dx:120,dy:-220},
+ {t0:T.DWARF+0.9,t1:T.CTA-0.3,text:'NANA BIANCA · ~0,6 M☉',anchor:()=>SUN(),dx:-240,dy:230},
 ];
 for(const c of callouts){const d=document.createElement('div');d.className='callout';d.innerHTML=`<div class="dot"></div><div class="line"></div><div class="lbl">${c.text}</div>`;calloutsEl.appendChild(d);c.el=d;}
 function project(v){const p=v.clone().project(camera);return{x:(p.x*0.5+0.5)*W,y:(-p.y*0.5+0.5)*H,z:p.z};}
 function updateUI(t){
- // captions
  let html='',cls='';
  for(const s of TL.sentences){
   if(t<s.chunks[0].s-0.08||t>s.end+0.35)continue;
@@ -329,9 +391,7 @@ function updateUI(t){
   if(html)break;
  }
  capEl.innerHTML=html;capEl.className=cls;if(!html)capEl.style.opacity=0;
- // cta
  const ca=t>=T.CTA?sm(u01(t,T.CTA,T.CTA+0.5)):0;ctaEl.style.opacity=ca;ctaEl.style.transform=`translateX(-50%) translateY(${(1-ca)*30}px)`;
- // callouts
  for(const c of callouts){const a=Math.min(sm(u01(t,c.t0,c.t0+0.35)),1-sm(u01(t,c.t1-0.3,c.t1)));c.el.style.opacity=a;if(a<=0)continue;
   const p=project(c.anchor());p.x=clamp(p.x,60,W-60);p.y=clamp(p.y,300,H-560);const lbl=c.el.querySelector('.lbl');const lw=lbl.offsetWidth||300;
   let ex=p.x+c.dx,ey=p.y+c.dy;const left=c.dx<0;ex=left?clamp(ex,40+lw,W-40):clamp(ex,40,W-40-lw);ey=clamp(ey,320,1040);
@@ -339,9 +399,9 @@ function updateUI(t){
   c.el.style.transform=`translate(${p.x}px,${p.y}px)`;c.el.querySelector('.line').style.width=(len*grow)+'px';c.el.querySelector('.line').style.transform=`rotate(${ang}deg)`;
   lbl.style.left=(lx*grow+(left?-lw:0))+'px';lbl.style.top=(ly*grow-24)+'px';lbl.style.opacity=u01(t,c.t0+0.35,c.t0+0.6);}
  // fades
- let f=0;if(t<0.7)f=1-t/0.7;const dd=Math.abs(t-T.OUTRO);if(dd<0.45)f=Math.max(f,1-dd/0.45);if(t>T.END-0.7)f=Math.max(f,u01(t,T.END-0.7,T.END));
+ let f=0;if(t<0.7)f=1-t/0.7;if(t>T.END-0.7)f=Math.max(f,u01(t,T.END-0.7,T.END));
  fadeEl.style.opacity=f;
- const fb=t-T.BREAK;flashEl.style.opacity=(fb>=0&&fb<0.45)?0.65*Math.pow(1-fb/0.45,2):0;
+ const fb=t-engulfT.earth;flashEl.style.opacity=(fb>=0&&fb<0.55)?0.62*Math.pow(1-fb/0.55,2):0;
  document.getElementById('badge').style.opacity=t>=T.CTA?0:1;
 }
 
