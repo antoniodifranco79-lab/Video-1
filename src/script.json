@@ -1,11 +1,11 @@
 [
- {"id":"hook",   "text":"E se il Sole diventasse una gigante rossa?", "pauseAfter":0.9},
- {"id":"fuel",   "text":"Tra circa cinque miliardi di anni il Sole esaurirà l'idrogeno nel suo nucleo. È l'inizio della fine.", "pauseAfter":0.5},
- {"id":"swell",  "text":"Il nucleo collassa su se stesso, mentre gli strati esterni si gonfiano. Il Sole inizia a dilatarsi e a tingersi di rosso.", "pauseAfter":0.5},
- {"id":"inner",  "text":"Prima inghiotte Mercurio, poi Venere. In un soffio cosmico i pianeti interni semplicemente svaniscono.", "pauseAfter":0.6},
- {"id":"earth",  "text":"La Terra viene investita da un calore mille volte più intenso. Gli oceani bollono, l'atmosfera fugge nello spazio e la superficie si scioglie.", "pauseAfter":0.5},
- {"id":"engulf", "text":"Il Sole si espande fino a cento volte la sua dimensione, forse abbastanza da divorare anche il nostro pianeta.", "pauseAfter":0.6},
- {"id":"nebula", "text":"Esausto, il Sole espelle i suoi strati esterni, dipingendo il cielo con una splendida nebulosa planetaria.", "pauseAfter":0.5},
- {"id":"dwarf",  "text":"Al centro resta solo il nucleo nudo: una nana bianca che si spegnerà lentamente, per miliardi di anni.", "pauseAfter":0.5},
- {"id":"cta",    "text":"Seguimi per il prossimo Uot If.", "pauseAfter":1.2}
+ {"id":"hook",    "text":"E se tutti gli oceani della Terra sparissero?", "pauseAfter":0.9},
+ {"id":"cover",   "text":"Coprono il settanta per cento del pianeta e custodiscono un miliardo e trecento milioni di chilometri cubi d'acqua.", "pauseAfter":0.5},
+ {"id":"drain",   "text":"Immaginiamo che, a poco a poco, evaporino. Il livello del mare crolla e le coste si ritirano di centinaia di chilometri.", "pauseAfter":0.5},
+ {"id":"reveal",  "text":"Affiora un mondo mai visto: dorsali vulcaniche lunghe come continenti, pianure abissali e fosse profonde undici chilometri.", "pauseAfter":0.6},
+ {"id":"climate", "text":"Ma senza oceani non c'è più evaporazione. Spariscono le nuvole, sparisce la pioggia, e il clima precipita nel caos.", "pauseAfter":0.5},
+ {"id":"life",    "text":"Quasi tutta la vita marina si spegne, e la catena alimentare del pianeta si sgretola dal basso.", "pauseAfter":0.5},
+ {"id":"desert",  "text":"In poche generazioni la Terra diventa un deserto rovente, avvolto da eterne tempeste di polvere.", "pauseAfter":0.6},
+ {"id":"outro",   "text":"Per fortuna i nostri oceani non evaporeranno. Ma averne cura è tutto tranne che scontato.", "pauseAfter":0.3},
+ {"id":"cta",     "text":"Seguimi per il prossimo Uot If.", "pauseAfter":1.2}
 ]

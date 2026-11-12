@@ -7,8 +7,8 @@
   "scripts": {
     "timeline": "python3 src/build_timeline.py",
     "sfx": "python3 src/sfx.py",
-    "test-frames": "node src/render.mjs test 2 6.5 13 20 26 33 40 44 48.5",
-    "render": "node src/render.mjs full 0 1527 1"
+    "test-frames": "node src/render.mjs test 2 6.5 13 19 26 32 37.5 43",
+    "render": "node src/render.mjs full 0 1471 1"
   },
   "dependencies": {
     "three": "0.170.0"
