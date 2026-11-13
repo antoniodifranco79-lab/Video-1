@@ -4,3 +4,5 @@ test/
 voices/
 *.wav
 !output/*.mp4
+frames_sole/
+src/sole/narr/

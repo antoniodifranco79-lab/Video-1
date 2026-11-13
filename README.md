@@ -1,4 +1,25 @@
-# What If · E se la Luna cadesse sulla Terra?
+# What If · serie 3D verticale
+
+| Episodio | Video | Sorgenti |
+|---|---|---|
+| E se la Luna cadesse sulla Terra? | [`output/what_if_luna.mp4`](output/what_if_luna.mp4) | `src/` |
+| E se il Sole si spegnesse? | [`output/what_if_sole.mp4`](output/what_if_sole.mp4) | `src/sole/` |
+
+Ogni episodio ha la stessa pipeline: `script.json` (testo), `build_timeline.py` (voce Piper + tempi parola per parola), `scene.html` (scena Three.js), `music.py` (colonna sonora e mix), `src/render.mjs` (rendering fotogramma per fotogramma).
+
+## Episodio "Il Sole"
+
+Tre mondi 3D nello stesso video: lo spazio (Sole con granulazione e corona, fronte dell'ultima luce che impiega 8 minuti e 20 secondi, pozzo gravitazionale, ghiaccio che avanza dai poli, spaccato della Terra con nucleo e oceano liquido), un paesaggio a livello del suolo (giorno che diventa buio istantaneo, alberi che muoiono, lago che gela, alba finale) e un diorama di una colonia sotterranea con geotermia, reattore e serre.
+
+```bash
+cd src/sole && python3 build_timeline.py && python3 music.py && cd ../..
+SCENE=src/sole/scene.html OUT=frames_sole node src/render.mjs full 0 1656 1
+ffmpeg -framerate 30 -i frames_sole/f%05d.jpg -i src/sole/audio.wav -c:v libx264 -preset slow -crf 21 -pix_fmt yuv420p \
+  -movflags +faststart -c:a aac -b:a 192k -shortest output/what_if_sole.mp4
+```
+
+## Episodio "La Luna"
+
 
 Video verticale 9:16 (1080×1920, 30 fps, ~58 s) in stile "What If" 3D per TikTok / Reels / Shorts.
 Il video finale è in [`output/what_if_luna.mp4`](output/what_if_luna.mp4).

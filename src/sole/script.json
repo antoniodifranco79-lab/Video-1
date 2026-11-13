@@ -1,0 +1,11 @@
+[
+ {"id":"hook",   "text":"E se il Sole si spegnesse all'improvviso? Spoiler: per otto minuti non te ne accorgeresti nemmeno.", "pauseAfter":0.6},
+ {"id":"light",  "text":"La luce impiega otto minuti e venti secondi ad arrivare fino a noi. Poi, di colpo, buio totale in pieno giorno.", "pauseAfter":0.9},
+ {"id":"orbit",  "text":"Non cadremmo nel vuoto: la gravità del Sole resterebbe. Il vero problema è il freddo.", "pauseAfter":0.45},
+ {"id":"cold",   "text":"In una settimana la temperatura media scende sotto zero. In un anno è a meno settanta, e gli oceani gelano in superficie.", "pauseAfter":0.45},
+ {"id":"plants", "text":"Senza fotosintesi le piante muoiono in pochi giorni, e con loro l'intera catena alimentare.", "pauseAfter":0.5},
+ {"id":"deep",   "text":"Ma la vita non sparirebbe del tutto. Il calore del nucleo terrestre terrebbe liquide le profondità degli oceani per miliardi di anni.", "pauseAfter":0.45},
+ {"id":"humans", "text":"E noi? Con energia geotermica e nucleare, piccole colonie sotterranee potrebbero resistere a lungo.", "pauseAfter":0.6},
+ {"id":"outro",  "text":"Per fortuna il Sole ha carburante per altri cinque miliardi di anni. Ma adesso sai quanto dipendi da lui.", "pauseAfter":0.35},
+ {"id":"cta",    "text":"Seguimi: nel prossimo Uot If, cosa succede se la Terra smette di girare.", "pauseAfter":1.3}
+]
