@@ -1,0 +1,593 @@
+<title>Assistente Salone Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: due colonne, il telefono del cliente a sinistra e il pannello del titolare a destra; una colonna sotto 860px */
+:root {
+  --bg: #F3F2F7;
+  --surface: #FFFFFF;
+  --surface-2: #ECEAF3;
+  --ink: #1F1B2E;
+  --muted: #625D73;
+  --line: #DAD6E5;
+  --accent: #A3195B;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #F8E3EC;
+  --chat-bg: #E9E4DC;
+  --bubble-in: #FFFFFF;
+  --bubble-out: #D9F2DF;
+  --ok: #1E7A46;
+  --warn: #9A5B00;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141220; --surface: #1D1A2C; --surface-2: #272339; --ink: #EEEAF7; --muted: #A9A3BC;
+    --line: #36314C; --accent: #F06BA6; --accent-ink: #1A0712; --accent-soft: #3A1B2C;
+    --chat-bg: #1A1724; --bubble-in: #2A2638; --bubble-out: #1F4A31; --ok: #6BD49A; --warn: #F2B35C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141220; --surface: #1D1A2C; --surface-2: #272339; --ink: #EEEAF7; --muted: #A9A3BC;
+  --line: #36314C; --accent: #F06BA6; --accent-ink: #1A0712; --accent-soft: #3A1B2C;
+  --chat-bg: #1A1724; --bubble-in: #2A2638; --bubble-out: #1F4A31; --ok: #6BD49A; --warn: #F2B35C;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem); font-weight: 800; line-height: 1.1; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 600; }
+.lead { color: var(--muted); max-width: 62ch; }
+header.top { display: grid; gap: 8px; }
+.mode { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.dot.ai { background: var(--ok); }
+
+.main { display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+/* telefono */
+.phone { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 10px; box-shadow: 0 18px 40px -24px rgba(30, 20, 50, .45); }
+.phone-inner { border-radius: 20px; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto auto; height: min(640px, 78vh); min-height: 460px; background: var(--chat-bg); }
+.chat-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--accent); color: var(--accent-ink); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-ink); color: var(--accent); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; flex: none; }
+.chat-head .name { font-weight: 600; line-height: 1.2; }
+.chat-head .sub { font-size: 0.75rem; opacity: .85; }
+.msgs { overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+.b { max-width: 84%; padding: 8px 11px; border-radius: 12px; font-size: 0.92rem; white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+.b.in { background: var(--bubble-in); align-self: flex-start; border-top-left-radius: 4px; }
+.b.out { background: var(--bubble-out); align-self: flex-end; border-top-right-radius: 4px; }
+.b .t { display: block; text-align: right; font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+.b.sys { align-self: center; background: var(--surface-2); color: var(--muted); font-size: 0.78rem; box-shadow: none; text-align: center; }
+.typing { color: var(--muted); font-style: italic; }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding: 8px 10px; background: var(--chat-bg); }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 11px; font: inherit; font-size: 0.8rem; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.composer { display: flex; gap: 8px; padding: 10px; background: var(--surface); border-top: 1px solid var(--line); }
+.composer input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; font: inherit; background: var(--bg); color: var(--ink); }
+.btn { border: 0; border-radius: 999px; padding: 10px 16px; font: inherit; font-weight: 600; cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* pannello */
+.panel { display: grid; gap: 18px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 560px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpi { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+.kpi b { display: block; font-family: var(--font-display); font-size: 1.6rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kpi span { font-size: 0.76rem; color: var(--muted); }
+.list { display: grid; gap: 8px; }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.when { text-align: center; min-width: 52px; }
+.when .d { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1; }
+.when .m { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.row .who { font-weight: 600; }
+.row .what { font-size: 0.84rem; color: var(--muted); }
+.price { font-variant-numeric: tabular-nums; font-weight: 600; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pill { font-size: 0.72rem; border-radius: 999px; padding: 2px 8px; background: var(--accent-soft); color: var(--accent); }
+.pill.ok { background: transparent; border: 1px solid var(--ok); color: var(--ok); }
+.empty { color: var(--muted); font-size: 0.9rem; padding: 12px; border: 1px dashed var(--line); border-radius: 10px; }
+.preview { background: var(--chat-bg); border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
+.preview .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .plans { grid-template-columns: minmax(0, 1fr); } }
+.plan { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 6px; align-content: start; }
+.plan.best { border-color: var(--accent); }
+.plan .cost { font-family: var(--font-display); font-size: 1.7rem; font-weight: 800; }
+.plan .cost small { font-family: var(--font-body); font-size: 0.8rem; font-weight: 400; color: var(--muted); }
+.plan ul { margin: 0; padding-left: 18px; font-size: 0.88rem; color: var(--muted); }
+
+/* personalizzazione */
+details.cfg { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; }
+details.cfg summary { cursor: pointer; font-family: var(--font-display); font-weight: 600; }
+.form { display: grid; gap: 14px; margin-top: 14px; }
+.fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 700px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+label { display: grid; gap: 4px; font-size: 0.8rem; color: var(--muted); }
+.form input, .form select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 0.76rem; padding: 4px 6px; }
+td { padding: 4px 6px; }
+td input { width: 100%; }
+td input[type="number"] { max-width: 90px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.note { font-size: 0.8rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .b { animation: pop .18s ease-out; } @keyframes pop { from { transform: translateY(4px); opacity: .4; } } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">Demo per il titolare</span>
+    <h1 id="titolo">Il tuo salone risponde ai clienti anche quando hai le mani occupate</h1>
+    <p class="lead">Scrivi nella chat come farebbe un cliente: chiedi i prezzi, gli orari o prenota un appuntamento. Nel pannello del salone vedi cosa arriva, senza che nessuno debba prendere il telefono.</p>
+    <span class="mode" id="mode"><span class="dot" id="modeDot"></span><span id="modeText">Preparo l'assistente…</span></span>
+  </header>
+
+  <div class="main">
+    <section class="phone" aria-label="Chat del cliente">
+      <div class="phone-inner">
+        <div class="chat-head">
+          <div class="avatar" id="avatar">A</div>
+          <div><div class="name" id="chatName">Salone</div><div class="sub">risponde subito · assistente automatico</div></div>
+        </div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form class="composer" id="composer" autocomplete="off">
+          <input id="msgInput" placeholder="Scrivi un messaggio…" aria-label="Messaggio">
+          <button class="btn" id="sendBtn" type="submit">Invia</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Pannello del salone">
+      <div class="card">
+        <h2>Pannello del salone</h2>
+        <div class="kpis">
+          <div class="kpi"><b id="kMsg">0</b><span>messaggi gestiti</span></div>
+          <div class="kpi"><b id="kBook">0</b><span>prenotazioni</span></div>
+          <div class="kpi"><b id="kRem">0</b><span>messaggi automatici in coda</span></div>
+          <div class="kpi"><b id="kEuro">0 €</b><span>valore prenotato</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Prenotazioni arrivate dalla chat</h2>
+        <div class="list" id="bookings"></div>
+      </div>
+
+      <div class="card">
+        <h2>Messaggi che partono da soli</h2>
+        <div class="split">
+          <div class="preview"><span class="label">Promemoria · il giorno prima alle 10:00</span><div class="b in" id="pvRem"></div></div>
+          <div class="preview"><span class="label">Dopo la visita · alle 20:00</span><div class="b in" id="pvRev"></div></div>
+        </div>
+        <p class="note">Meno appuntamenti dimenticati e più recensioni su Google, senza scrivere nulla a mano.</p>
+      </div>
+
+      <div class="card">
+        <h2>Quanto costa</h2>
+        <div class="plans">
+          <div class="plan"><span class="eyebrow">Base</span><div class="cost">49 € <small>/ mese</small></div>
+            <ul><li>Risponde 24 ore su 24 su prezzi, orari e servizi</li><li>Raccoglie le prenotazioni</li></ul></div>
+          <div class="plan best"><span class="eyebrow">Completo</span><div class="cost">89 € <small>/ mese</small></div>
+            <ul><li>Tutto il piano Base</li><li>Promemoria automatici il giorno prima</li><li>Richiesta di recensione dopo ogni visita</li></ul></div>
+        </div>
+        <p class="note">Primo mese di prova gratuito. Nessun vincolo: si disdice quando si vuole.</p>
+      </div>
+    </section>
+  </div>
+
+  <details class="cfg" id="cfgBox">
+    <summary>Personalizza la demo per il salone che stai visitando</summary>
+    <form class="form" id="cfgForm">
+      <div class="fields">
+        <label>Nome dell'attività <input id="cName"></label>
+        <label>Indirizzo <input id="cAddr"></label>
+        <label>Telefono <input id="cTel"></label>
+      </div>
+      <div>
+        <h3 style="font-size:.95rem;margin-bottom:6px">Servizi e prezzi</h3>
+        <div class="tablewrap"><table><thead><tr><th>Servizio</th><th>Prezzo €</th><th>Minuti</th><th></th></tr></thead><tbody id="cServ"></tbody></table></div>
+        <button class="btn ghost" type="button" id="addServ" style="margin-top:8px">Aggiungi servizio</button>
+      </div>
+      <div>
+        <h3 style="font-size:.95rem;margin-bottom:6px">Orari</h3>
+        <div class="tablewrap"><table><thead><tr><th>Giorno</th><th>Aperto</th><th>Dalle</th><th>Alle</th></tr></thead><tbody id="cHours"></tbody></table></div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit">Salva e ricomincia la chat</button>
+        <button class="btn ghost" type="button" id="resetAll">Torna all'esempio</button>
+      </div>
+      <p class="note">I dati restano solo su questo dispositivo.</p>
+    </form>
+  </details>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const KEY = "demo-salone-v1";
+  const GIORNI = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+  const ESEMPIO = {
+    nome: "Salone Aurora", indirizzo: "Via Roma 12", telefono: "333 123 4567",
+    servizi: [
+      { nome: "Taglio donna", prezzo: 28, minuti: 45 }, { nome: "Taglio uomo", prezzo: 18, minuti: 30 },
+      { nome: "Piega", prezzo: 20, minuti: 30 }, { nome: "Colore", prezzo: 45, minuti: 90 },
+      { nome: "Meches", prezzo: 70, minuti: 120 }, { nome: "Trattamento ristrutturante", prezzo: 25, minuti: 30 },
+    ],
+    // indice 0 = domenica
+    orari: [null, null, ["09:00", "19:00"], ["09:00", "19:00"], ["09:00", "19:00"], ["09:00", "19:00"], ["09:00", "17:00"]],
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  let stato = carica();
+  let chat = [];          // [{role:"user"|"assistant", content}]
+  let flusso = null;      // prenotazione guidata (modalità semplice)
+  let sample = null;      // capability Claude, se disponibile
+  let usaAI = false;
+  let occupato = false;
+
+  function carica() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (s && s.cfg && Array.isArray(s.prenotazioni)) return s;
+    } catch (e) { /* storage non disponibile */ }
+    return { cfg: clone(ESEMPIO), prenotazioni: [], messaggi: 0 };
+  }
+  function salva() { try { localStorage.setItem(KEY, JSON.stringify(stato)); } catch (e) { /* ignora */ } }
+
+  // ---------------------------------------------------------------- date e orari
+  const pad = (n) => String(n).padStart(2, "0");
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const daIso = (s) => { const [y, m, g] = s.split("-").map(Number); return new Date(y, m - 1, g); };
+  const fmtGiorno = (d) => new Intl.DateTimeFormat("it-IT", { weekday: "long", day: "numeric", month: "long" }).format(d);
+  const minuti = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+  const hhmm = (min) => `${pad(Math.floor(min / 60))}:${pad(min % 60)}`;
+
+  function testoOrari(cfg) {
+    return GIORNI.map((g, i) => `${g}: ${cfg.orari[i] ? cfg.orari[i][0] + "–" + cfg.orari[i][1] : "chiuso"}`)
+      .slice(1).concat(`Domenica: ${cfg.orari[0] ? cfg.orari[0][0] + "–" + cfg.orari[0][1] : "chiuso"}`).join("\n");
+  }
+  function prossimiGiorniAperti(n) {
+    const out = [], d = new Date(); d.setHours(0, 0, 0, 0);
+    for (let i = 0; out.length < n && i < 21; i++) {
+      const g = new Date(d); g.setDate(d.getDate() + i);
+      if (stato.cfg.orari[g.getDay()]) out.push(g);
+    }
+    return out;
+  }
+  function orariLiberi(data, durata) {
+    const o = stato.cfg.orari[data.getDay()];
+    if (!o) return [];
+    const occupati = stato.prenotazioni.filter((p) => p.data === iso(data)).map((p) => [minuti(p.ora), minuti(p.ora) + p.minuti]);
+    const ora = new Date(), oggi = iso(ora) === iso(data), adesso = ora.getHours() * 60 + ora.getMinutes();
+    const out = [];
+    for (let m = minuti(o[0]); m + durata <= minuti(o[1]); m += 30) {
+      if (oggi && m <= adesso + 30) continue;
+      if (occupati.some(([a, b]) => m < b && m + durata > a)) continue;
+      out.push(hhmm(m));
+    }
+    return out;
+  }
+  function apertoAdesso() {
+    const d = new Date(), o = stato.cfg.orari[d.getDay()], m = d.getHours() * 60 + d.getMinutes();
+    return !!o && m >= minuti(o[0]) && m < minuti(o[1]);
+  }
+
+  // ---------------------------------------------------------------- chat UI
+  function ora() { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+  function bolla(cls, testo) {
+    const b = document.createElement("div");
+    b.className = "b " + cls;
+    const t = document.createElement("span"); t.className = "txt"; t.textContent = testo;
+    b.append(t);
+    if (cls !== "sys") { const s = document.createElement("span"); s.className = "t"; s.textContent = ora(); b.append(s); }
+    $("msgs").append(b);
+    $("msgs").scrollTop = $("msgs").scrollHeight;
+    return t;
+  }
+  function chips(lista) {
+    const box = $("chips"); box.textContent = "";
+    lista.forEach((c) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = c.label;
+      b.addEventListener("click", () => invia(c.testo ?? c.label));
+      box.append(b);
+    });
+    box.hidden = lista.length === 0;
+  }
+  function chipsBase() {
+    chips([{ label: "Quanto costa un taglio?" }, { label: "Siete aperti sabato?" },
+           { label: "Vorrei prenotare" }, { label: "Dove siete?" }, { label: "Fate le extension?" }]);
+  }
+  function benvenuto() {
+    $("msgs").textContent = "";
+    chat = []; flusso = null;
+    const testo = `Ciao! Sono l'assistente di ${stato.cfg.nome} 💇‍♀️ Posso dirti prezzi e orari o prenotarti un appuntamento. Come posso aiutarti?`;
+    bolla("in", testo);
+    chat.push({ role: "assistant", content: testo });
+    chipsBase();
+  }
+
+  async function invia(testo) {
+    testo = String(testo || "").trim();
+    if (!testo || occupato) return;
+    $("msgInput").value = "";
+    bolla("out", testo);
+    stato.messaggi += 1; salva(); pannello();
+    chat.push({ role: "user", content: testo });
+    if (usaAI && !flusso) await rispostaAI(testo);
+    else rispostaSemplice(testo);
+  }
+
+  // ---------------------------------------------------------------- modalità AI
+  function istruzioni() {
+    const c = stato.cfg, oggi = new Date();
+    const servizi = c.servizi.map((s) => `- ${s.nome}: ${s.prezzo} € (${s.minuti} minuti)`).join("\n");
+    const occupati = stato.prenotazioni.map((p) => `${p.data} ${p.ora} per ${p.minuti} minuti`).join("; ") || "nessuno";
+    return `Sei l'assistente WhatsApp di "${c.nome}", ${c.indirizzo}, tel. ${c.telefono}.
+Oggi è ${fmtGiorno(oggi)} ${oggi.getFullYear()} (${iso(oggi)}), ore ${ora()}.
+
+Servizi e prezzi:
+${servizi}
+
+Orari di apertura:
+${testoOrari(c)}
+
+Appuntamenti già occupati: ${occupati}.
+
+Regole:
+- Rispondi in italiano, con tono cordiale e frasi brevi, come in una chat WhatsApp: massimo 3 frasi.
+- Usa solo le informazioni qui sopra. Se ti chiedono qualcosa che non sai (servizi non in elenco, promozioni, disponibilità di una persona), dì che giri la domanda al salone e che rispondono appena possibile.
+- Per prenotare servono: servizio, giorno, ora e nome del cliente. Chiedi quello che manca, una cosa alla volta.
+- Accetta solo orari dentro l'apertura, con il servizio che finisce prima della chiusura, non sovrapposti agli appuntamenti occupati e non nel passato. Se non va bene, proponi 2 orari vicini liberi.
+- Quando hai tutti i dati validi, conferma con giorno, ora e servizio, e alla fine aggiungi una riga separata esattamente in questo formato:
+[[PRENOTA {"nome":"Nome","servizio":"Nome servizio come in elenco","data":"AAAA-MM-GG","ora":"HH:MM"}]]
+- Non scrivere mai quella riga prima di avere tutti i dati, e non parlarne al cliente.`;
+  }
+
+  async function rispostaAI() {
+    occupato = true; $("sendBtn").disabled = true; chips([]);
+    const el = bolla("in", "sta scrivendo…"); el.classList.add("typing");
+    const turni = [{ role: "user", content: istruzioni() + "\n\nEcco la conversazione con il cliente." }, ...chat.slice(-16)];
+    // i turni devono iniziare e finire con "user": il benvenuto è un turno assistant, va bene in mezzo
+    try {
+      const { text } = await sample(turni, {
+        modelTier: "quick", cache: false,
+        onText: ({ text }) => { el.classList.remove("typing"); el.textContent = visibile(text); },
+      });
+      const pulito = visibile(text);
+      el.textContent = pulito || "Fatto!";
+      chat.push({ role: "assistant", content: pulito });
+      const m = text.match(/\[\[PRENOTA\s*(\{[\s\S]*?\})\s*\]\]/);
+      if (m) { try { registra(JSON.parse(m[1])); } catch (e) { /* riga non valida: ignorata */ } }
+    } catch (e) {
+      const codice = e && e.code;
+      if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(codice)) {
+        passaASemplice();
+        el.remove();
+        rispostaSemplice(chat[chat.length - 1].content, true);
+      } else {
+        el.classList.remove("typing");
+        el.textContent = (e && e.text ? visibile(e.text) + "\n\n" : "") +
+          (codice === "rate_limited" ? "Troppi messaggi in poco tempo: riprova tra qualche minuto." : "Non sono riuscito a rispondere. Riprova tra poco.");
+      }
+    } finally {
+      occupato = false; $("sendBtn").disabled = false; if (!flusso) chipsBase();
+    }
+  }
+  const visibile = (t) => t.split("[[")[0].trim();
+
+  // ---------------------------------------------------------------- modalità semplice (senza AI)
+  const norm = (t) => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function trovaServizio(t) {
+    const n = norm(t);
+    return stato.cfg.servizi.find((s) => n.includes(norm(s.nome))) ||
+      stato.cfg.servizi.find((s) => norm(s.nome).split(" ").some((p) => p.length > 3 && n.includes(p)));
+  }
+  function rispondi(testo) { bolla("in", testo); chat.push({ role: "assistant", content: testo }); }
+
+  function rispostaSemplice(testo, giaMostrato) {
+    const n = norm(testo), c = stato.cfg;
+    if (flusso) return passoPrenotazione(testo);
+    if (/prenot|appuntament|fissare|posto per/.test(n)) {
+      flusso = { passo: "servizio", servizio: trovaServizio(testo) };
+      if (flusso.servizio) flusso.passo = "giorno";
+      return passoPrenotazione(null);
+    }
+    if (/prezz|cost|quanto|listino|tariff/.test(n)) {
+      const s = trovaServizio(testo);
+      if (s) return rispondi(`${s.nome}: ${s.prezzo} € (circa ${s.minuti} minuti). Vuoi prenotare?`);
+      return rispondi("Ecco i nostri prezzi:\n" + c.servizi.map((s) => `• ${s.nome}: ${s.prezzo} €`).join("\n") + "\nVuoi prenotare?");
+    }
+    if (/orar|apert|chius|domenic|lunedi|martedi|mercoledi|giovedi|venerdi|sabato|quando/.test(n)) {
+      return rispondi("I nostri orari:\n" + testoOrari(c) + (apertoAdesso() ? "\nIn questo momento siamo aperti." : ""));
+    }
+    if (/dove|indirizz|trov|parchegg|via /.test(n)) {
+      return rispondi(`Siamo in ${c.indirizzo}. Per qualsiasi cosa puoi chiamare il ${c.telefono}.`);
+    }
+    if (/^(ciao|salve|buongiorno|buonasera|grazie)/.test(n)) {
+      return rispondi(n.startsWith("grazie") ? "Grazie a te, a presto! 😊" : "Ciao! Posso dirti prezzi, orari o prenotarti un appuntamento.");
+    }
+    const s = trovaServizio(testo);
+    if (s) return rispondi(`Sì, facciamo ${s.nome.toLowerCase()}: ${s.prezzo} €. Vuoi prenotare?`);
+    rispondi("Questa domanda la giro al salone: ti rispondono appena possibile. Intanto posso dirti prezzi, orari o prenotarti un appuntamento.");
+  }
+
+  function passoPrenotazione(testo) {
+    const f = flusso;
+    if (testo && /annull|lascia stare|no grazie/.test(norm(testo))) { flusso = null; chipsBase(); return rispondi("Nessun problema! Se cambi idea sono qui."); }
+    if (f.passo === "servizio") {
+      if (testo) f.servizio = trovaServizio(testo);
+      if (!f.servizio) {
+        rispondi("Per quale servizio vuoi prenotare?");
+        return chips(stato.cfg.servizi.map((s) => ({ label: `${s.nome} · ${s.prezzo} €`, testo: s.nome })));
+      }
+      f.passo = "giorno"; testo = null;
+    }
+    if (f.passo === "giorno") {
+      const giorni = prossimiGiorniAperti(6).filter((d) => orariLiberi(d, f.servizio.minuti).length);
+      if (testo) f.data = giorni.find((d) => norm(testo).includes(norm(fmtGiorno(d))) || norm(fmtGiorno(d)).startsWith(norm(testo)));
+      if (!f.data) {
+        rispondi(`Perfetto, ${f.servizio.nome.toLowerCase()}. Che giorno preferisci?`);
+        return chips(giorni.map((d) => ({ label: fmtGiorno(d) })));
+      }
+      f.passo = "ora"; testo = null;
+    }
+    if (f.passo === "ora") {
+      const liberi = orariLiberi(f.data, f.servizio.minuti);
+      const scelta = testo && (testo.match(/\b(\d{1,2})[:.](\d{2})\b/) || testo.match(/\b(\d{1,2})\b/));
+      if (scelta) { const h = hhmm(Number(scelta[1]) * 60 + Number(scelta[2] || 0)); if (liberi.includes(h)) f.ora = h; }
+      if (!f.ora) {
+        rispondi(testo ? "Quell'orario non è libero. Scegli tra questi:" : `${cap(fmtGiorno(f.data))}: a che ora?`);
+        return chips(liberi.slice(0, 10).map((h) => ({ label: h })));
+      }
+      f.passo = "nome"; testo = null;
+    }
+    if (f.passo === "nome") {
+      if (testo) f.nome = cap(testo.trim().split(/\s+/).slice(0, 3).join(" "));
+      if (!f.nome) { chips([]); return rispondi("Ultima cosa: a che nome prenoto?"); }
+      const ok = registra({ nome: f.nome, servizio: f.servizio.nome, data: iso(f.data), ora: f.ora });
+      flusso = null; chipsBase();
+      return rispondi(ok
+        ? `Fatto ${f.nome}! ✅ ${f.servizio.nome} ${fmtGiorno(f.data)} alle ${f.ora}. Ti mando un promemoria il giorno prima. A presto!`
+        : "Non sono riuscito a registrare la prenotazione, ti ricontatta il salone.");
+    }
+  }
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // ---------------------------------------------------------------- prenotazioni e pannello
+  function registra(p) {
+    const servizio = stato.cfg.servizi.find((s) => norm(s.nome) === norm(String(p.servizio || ""))) || trovaServizio(String(p.servizio || ""));
+    if (!servizio || !/^\d{4}-\d{2}-\d{2}$/.test(p.data || "") || !/^\d{1,2}:\d{2}$/.test(p.ora || "") || !String(p.nome || "").trim()) return false;
+    const [h, m] = p.ora.split(":");
+    stato.prenotazioni.push({ nome: String(p.nome).trim().slice(0, 40), servizio: servizio.nome, prezzo: servizio.prezzo,
+      minuti: servizio.minuti, data: p.data, ora: `${pad(h)}:${m}`, creata: Date.now() });
+    stato.prenotazioni.sort((a, b) => (a.data + a.ora).localeCompare(b.data + b.ora));
+    salva(); pannello();
+    bolla("sys", "Prenotazione inserita nel pannello del salone");
+    return true;
+  }
+
+  function pannello() {
+    const c = stato.cfg, lista = stato.prenotazioni;
+    $("chatName").textContent = c.nome;
+    $("avatar").textContent = (c.nome.replace(/^(salone|studio|centro)\s+/i, "")[0] || "S").toUpperCase();
+    $("kMsg").textContent = stato.messaggi;
+    $("kBook").textContent = lista.length;
+    $("kRem").textContent = lista.length * 2;
+    $("kEuro").textContent = lista.reduce((t, p) => t + Number(p.prezzo || 0), 0) + " €";
+    const box = $("bookings"); box.textContent = "";
+    if (!lista.length) {
+      const e = document.createElement("div"); e.className = "empty";
+      e.textContent = "Ancora nessuna prenotazione. Prova a scrivere «Vorrei prenotare un taglio» nella chat.";
+      box.append(e);
+    }
+    lista.forEach((p) => {
+      const d = daIso(p.data);
+      const r = document.createElement("div"); r.className = "row";
+      r.innerHTML = `<div class="when"><div class="d"></div><div class="m"></div></div><div><div class="who"></div><div class="what"></div><div class="pills"><span class="pill">Promemoria programmato</span><span class="pill">Richiesta recensione</span><span class="pill ok">Arrivata dalla chat</span></div></div><div class="price"></div>`;
+      r.querySelector(".d").textContent = d.getDate();
+      r.querySelector(".m").textContent = new Intl.DateTimeFormat("it-IT", { month: "short" }).format(d);
+      r.querySelector(".who").textContent = p.nome;
+      r.querySelector(".what").textContent = `${p.servizio} · ${new Intl.DateTimeFormat("it-IT", { weekday: "long" }).format(d)} alle ${p.ora} · ${p.minuti} min`;
+      r.querySelector(".price").textContent = p.prezzo + " €";
+      box.append(r);
+    });
+    const ultima = lista.length ? lista.reduce((a, b) => (a.creata > b.creata ? a : b)) : { nome: "Giulia", servizio: "Taglio donna", ora: "15:30", data: iso(new Date()) };
+    $("pvRem").textContent = `Ciao ${ultima.nome}! Ti ricordiamo l'appuntamento di domani alle ${ultima.ora} per ${ultima.servizio.toLowerCase()} da ${c.nome}. Se non puoi venire, rispondi a questo messaggio. A domani! 💇‍♀️`;
+    $("pvRev").textContent = `Grazie della visita da ${c.nome}, ${ultima.nome}! Se ti è piaciuto il risultato, ci lasci una recensione su Google? Ci aiuta tantissimo ⭐`;
+  }
+
+  // ---------------------------------------------------------------- personalizzazione
+  function riempiForm() {
+    const c = stato.cfg;
+    $("cName").value = c.nome; $("cAddr").value = c.indirizzo; $("cTel").value = c.telefono;
+    const sv = $("cServ"); sv.textContent = "";
+    c.servizi.forEach((s, i) => aggiungiRigaServizio(s, i));
+    const hb = $("cHours"); hb.textContent = "";
+    [1, 2, 3, 4, 5, 6, 0].forEach((g) => {
+      const o = c.orari[g];
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td></td><td><input type="checkbox" id="h-on-${g}"></td><td><input type="time" id="h-da-${g}" step="900"></td><td><input type="time" id="h-a-${g}" step="900"></td>`;
+      tr.firstChild.textContent = GIORNI[g];
+      hb.append(tr);
+      $("h-on-" + g).checked = !!o; $("h-da-" + g).value = o ? o[0] : "09:00"; $("h-a-" + g).value = o ? o[1] : "19:00";
+    });
+  }
+  let contaServ = 0;
+  function aggiungiRigaServizio(s) {
+    const i = contaServ++;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><input id="s-n-${i}" aria-label="Servizio"></td><td><input type="number" min="0" step="1" id="s-p-${i}" aria-label="Prezzo"></td><td><input type="number" min="15" step="15" id="s-m-${i}" aria-label="Minuti"></td><td><button type="button" class="btn ghost" aria-label="Rimuovi servizio">×</button></td>`;
+    tr.querySelector("button").addEventListener("click", () => tr.remove());
+    $("cServ").append(tr);
+    $("s-n-" + i).value = s.nome; $("s-p-" + i).value = s.prezzo; $("s-m-" + i).value = s.minuti;
+  }
+  $("addServ").addEventListener("click", () => aggiungiRigaServizio({ nome: "", prezzo: 20, minuti: 30 }));
+  $("cfgForm").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const servizi = [...$("cServ").querySelectorAll("tr")].map((tr) => {
+      const [n, p, m] = tr.querySelectorAll("input");
+      return { nome: n.value.trim(), prezzo: Math.max(0, Math.round(Number(p.value) || 0)), minuti: Math.max(15, Math.round(Number(m.value) || 30)) };
+    }).filter((s) => s.nome);
+    const orari = [0, 1, 2, 3, 4, 5, 6].map((g) => {
+      const da = $("h-da-" + g).value, a = $("h-a-" + g).value;
+      return $("h-on-" + g).checked && da && a && minuti(a) > minuti(da) ? [da, a] : null;
+    });
+    stato.cfg = {
+      nome: $("cName").value.trim() || ESEMPIO.nome, indirizzo: $("cAddr").value.trim() || ESEMPIO.indirizzo,
+      telefono: $("cTel").value.trim() || ESEMPIO.telefono, servizi: servizi.length ? servizi : clone(ESEMPIO.servizi), orari,
+    };
+    stato.prenotazioni = []; stato.messaggi = 0;
+    salva(); riempiForm(); pannello(); benvenuto();
+    $("cfgBox").open = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  $("resetAll").addEventListener("click", () => {
+    stato = { cfg: clone(ESEMPIO), prenotazioni: [], messaggi: 0 };
+    salva(); riempiForm(); pannello(); benvenuto();
+  });
+
+  // ---------------------------------------------------------------- avvio
+  function passaASemplice() {
+    usaAI = false;
+    $("modeDot").className = "dot";
+    $("modeText").textContent = "Risposte automatiche di base (l'intelligenza artificiale non è attiva su questo dispositivo)";
+  }
+  $("composer").addEventListener("submit", (ev) => { ev.preventDefault(); invia($("msgInput").value); });
+  riempiForm(); pannello(); benvenuto(); passaASemplice();
+  $("modeText").textContent = "Preparo l'assistente…";
+
+  (async () => {
+    try { sample = window.claude && window.claude.use ? await window.claude.use("sample") : null; } catch (e) { sample = null; }
+    if (sample) {
+      usaAI = true;
+      $("modeDot").className = "dot ai";
+      $("modeText").textContent = "Risponde con l'intelligenza artificiale: scrivi come vuoi, anche frasi lunghe";
+    } else {
+      passaASemplice();
+    }
+  })();
+})();
+</script>
