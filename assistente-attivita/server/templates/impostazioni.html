@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titolo %}{{ s.nome }} · Impostazioni{% endblock %}
+{% block corpo %}
+<div class="top">
+  <h1>Prezzi, orari e informazioni</h1>
+  <a class="btn ghost" href="/s/{{ s.token }}">Torna all'agenda</a>
+</div>
+<p class="muted">L'assistente risponde ai clienti usando solo quello che scrivi qui.</p>
+<form method="post" action="/s/{{ s.token }}/impostazioni" class="card">
+  <div class="campi">
+    <label>Nome del salone <input name="nome" value="{{ s.nome }}" required maxlength="80"></label>
+    <label>Indirizzo <input name="indirizzo" value="{{ s.indirizzo }}" maxlength="120"></label>
+    <label>Telefono <input name="telefono" value="{{ s.telefono }}" maxlength="30"></label>
+    <label>Postazioni (clienti serviti insieme) <input type="number" name="posti" value="{{ s.posti }}" min="1" max="30"></label>
+  </div>
+  <label>Servizi: una riga per servizio, «Nome; prezzo; minuti»
+    <textarea name="servizi" rows="8">{{ servizi_testo }}</textarea>
+  </label>
+  <div>
+    <h2 style="margin-bottom:8px">Orari</h2>
+    <p class="muted">Per esempio «09:00-13:00, 15:00-19:30», oppure «chiuso».</p>
+    <div class="campi">
+      {% for g in range(7) %}
+      <label>{{ giorni[g]|capitalize }} <input name="orari_{{ g }}" value="{{ orari_testo[g|string] }}"></label>
+      {% endfor %}
+    </div>
+  </div>
+  <label>Link per lasciare una recensione su Google (facoltativo)
+    <input name="link_recensioni" value="{{ s.link_recensioni }}" placeholder="https://g.page/r/..." maxlength="300">
+  </label>
+  <label>Altre informazioni utili per i clienti (parcheggio, pagamenti, prodotti, ferie…)
+    <textarea name="note" rows="5" maxlength="1500">{{ s.note }}</textarea>
+  </label>
+  <div><button class="btn" type="submit">Salva</button></div>
+</form>
+{% endblock %}

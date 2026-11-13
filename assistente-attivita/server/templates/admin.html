@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titolo %}Amministrazione saloni{% endblock %}
+{% block corpo %}
+<h1>I tuoi saloni</h1>
+<div class="grid">
+  <div class="kpi"><b>{{ saloni|length }}</b><span>saloni</span></div>
+  <div class="kpi"><b>{{ saloni|selectattr('phone_number_id')|list|length }}</b><span>collegati a WhatsApp</span></div>
+  <div class="kpi"><b>{{ totale }} €</b><span>canoni al mese (saloni collegati)</span></div>
+</div>
+
+<section class="card">
+  <h2>Elenco</h2>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Salone</th><th>Numero WhatsApp (ID Meta) e piano</th><th>Ultimi 30 giorni</th><th>Pannello del titolare</th></tr></thead>
+    <tbody>
+    {% for s in saloni %}
+    <tr>
+      <td><strong>{{ s.nome }}</strong><br>
+        {% if s.bot_attivo %}<span class="pill ok">assistente acceso</span>{% else %}<span class="pill warn">assistente spento</span>{% endif %}
+        {% if s.da_gestire %}<span class="pill warn">{{ s.da_gestire }} da richiamare</span>{% endif %}</td>
+      <td>
+        <form method="post" action="/admin/saloni/{{ s.id }}" style="display:grid;gap:6px;min-width:200px">
+          <input name="phone_number_id" value="{{ s.phone_number_id or '' }}" placeholder="non collegato" aria-label="Phone number ID">
+          <select name="piano" aria-label="Piano">
+            <option value="base" {% if s.piano == 'base' %}selected{% endif %}>Base · 49 €</option>
+            <option value="completo" {% if s.piano == 'completo' %}selected{% endif %}>Completo · 89 €</option>
+          </select>
+          <button class="btn small" type="submit">Salva</button>
+        </form>
+      </td>
+      <td>{{ s.messaggi }} messaggi<br>{{ s.prenotazioni_bot }} prenotazioni dal bot</td>
+      <td><a href="/s/{{ s.token }}" target="_blank" rel="noopener">Apri</a><br>
+        <span class="muted" style="word-break:break-all">{{ base_url }}/s/{{ s.token }}</span></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="vuoto">Nessun salone. Aggiungi il primo qui sotto.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Aggiungi un salone</h2>
+  <form method="post" action="/admin/saloni" class="campi">
+    <label>Nome <input name="nome" required maxlength="80"></label>
+    <label>Phone number ID (si può aggiungere dopo) <input name="phone_number_id"></label>
+    <label>Piano
+      <select name="piano"><option value="completo">Completo · 89 €</option><option value="base">Base · 49 €</option></select>
+    </label>
+    <button class="btn" type="submit">Crea</button>
+  </form>
+  <p class="muted">Dopo averlo creato, apri il suo pannello e inserisci prezzi e orari (o mandagli il link e lo fa il titolare).</p>
+</section>
+{% endblock %}

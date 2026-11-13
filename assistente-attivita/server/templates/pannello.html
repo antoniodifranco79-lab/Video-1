@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block titolo %}{{ s.nome }} · Agenda{% endblock %}
+{% block corpo %}
+<div class="top">
+  <div>
+    <h1>{{ s.nome }}</h1>
+    <span class="muted">Assistente WhatsApp ·
+      {% if s.bot_attivo %}<span class="pill ok">acceso</span>{% else %}<span class="pill warn">spento: rispondete voi</span>{% endif %}
+    </span>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <form class="inline" method="post" action="/s/{{ s.token }}/bot">
+      <input type="hidden" name="attivo" value="{{ '0' if s.bot_attivo else '1' }}">
+      <button class="btn ghost" type="submit">{{ 'Spegni assistente' if s.bot_attivo else 'Accendi assistente' }}</button>
+    </form>
+    <a class="btn ghost" href="/s/{{ s.token }}/impostazioni">Prezzi e orari</a>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="kpi"><b>{{ stat.messaggi }}</b><span>messaggi dei clienti (30 giorni)</span></div>
+  <div class="kpi"><b>{{ stat.prenotazioni_bot }}</b><span>prenotazioni prese dall'assistente (30 giorni)</span></div>
+  <div class="kpi"><b>{{ stat.da_gestire }}</b><span>clienti da richiamare</span></div>
+</div>
+
+<section class="card">
+  <h2>Clienti da richiamare</h2>
+  {% if da_gestire %}
+    {% for d in da_gestire %}
+    <div class="riga" style="grid-template-columns:minmax(0,1fr) auto">
+      <div>
+        <strong>{{ d.nome_cliente or 'Cliente' }}</strong> · <a href="https://wa.me/{{ d.cliente_wa }}" target="_blank" rel="noopener">+{{ d.cliente_wa }}</a>
+        <div class="muted">{{ d.motivo }} · {{ d.quando[:16].replace('T', ' ') }}</div>
+      </div>
+      <form class="inline" method="post" action="/s/{{ s.token }}/gestito/{{ d.id }}"><button class="btn small" type="submit">Fatto</button></form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="vuoto">Nessuno: l'assistente ha gestito tutto.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Agenda dei prossimi 14 giorni</h2>
+  {% for g in giorni %}
+  <div class="giorno">
+    <h3>{{ g.nome|capitalize }}{% if g.chiuso %} <span class="pill warn">giorno di chiusura</span>{% endif %}</h3>
+    {% for p in g.pren %}
+    <div class="riga">
+      <span class="ora">{{ p.ora }}</span>
+      <div>
+        <strong>{{ p.nome }}</strong> · {{ p.servizio }} <span class="muted">({{ p.minuti }} min)</span>
+        <div>{% if p.origine == 'bot' %}<span class="pill">da WhatsApp</span>{% else %}<span class="pill ok">inserito dal salone</span>{% endif %}
+          {% if p.cliente_wa %}<a class="muted" href="https://wa.me/{{ p.cliente_wa }}" target="_blank" rel="noopener">+{{ p.cliente_wa }}</a>{% endif %}</div>
+      </div>
+      <details>
+        <summary class="muted">Annulla</summary>
+        <form method="post" action="/s/{{ s.token }}/annulla/{{ p.id }}" style="margin-top:6px">
+          <button class="btn small" type="submit">Conferma annullamento</button>
+        </form>
+      </details>
+    </div>
+    {% else %}
+    {% if not g.chiuso %}<p class="vuoto">Nessun appuntamento.</p>{% endif %}
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2>Aggiungi un appuntamento</h2>
+  <p class="muted">Per i clienti che chiamano o passano in salone. Con il numero di cellulare ricevono anche il promemoria.</p>
+  <form method="post" action="/s/{{ s.token }}/prenota" class="campi">
+    <label>Giorno <input type="date" name="data" value="{{ oggi }}" min="{{ oggi }}" required></label>
+    <label>Ora <input type="time" name="ora" step="900" required></label>
+    <label>Servizio
+      <select name="servizio">
+        {% for x in s.servizi %}<option value="{{ x.nome }}">{{ x.nome }} ({{ x.minuti }} min)</option>{% endfor %}
+        <option value="__blocco__">Blocca un orario (pausa, ferie…)</option>
+      </select>
+    </label>
+    <label>Minuti, solo per i blocchi <input type="number" name="minuti" value="60" min="15" max="600" step="15"></label>
+    <label>Nome <input name="nome" required maxlength="60"></label>
+    <label>Cellulare (facoltativo) <input name="telefono" inputmode="tel" placeholder="333 1234567"></label>
+    <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="forza" value="1"> Inserisci comunque</label>
+    <button class="btn" type="submit">Aggiungi</button>
+  </form>
+</section>
+<p class="muted">Tieni questo link per te: chi lo ha può vedere e modificare l'agenda.</p>
+{% endblock %}
