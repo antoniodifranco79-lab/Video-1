@@ -187,7 +187,7 @@ const corona=new THREE.Mesh(new THREE.PlaneGeometry(RS*6,RS*6),new THREE.ShaderM
  void main(){vec2 p=(vUv-0.5)*6.0;float r=length(p);if(r<0.985)discard;float a=atan(p.y,p.x);
   float rays=fbm2(vec2(a*5.0,r*1.4-uTime*0.12))*0.8+0.6*fbm2(vec2(a*16.0+3.0,r*0.7-uTime*0.08));
   float glow=exp(-(r-1.0)*3.4)*1.25+exp(-(r-1.0)*0.85)*0.22;
-  vec3 col=vec3(1.0,0.6,0.26)*glow*(0.55+0.75*rays)*uLife*0.75;gl_FragColor=vec4(col,1.0);}`}));
+  vec3 col=vec3(1.0,0.6,0.26)*glow*(0.55+0.75*rays)*uLife*0.75*smoothstep(3.0,2.0,r);gl_FragColor=vec4(col,1.0);}`}));
 space.add(corona);
 // prominences
 const promMat=new THREE.MeshBasicMaterial({color:new THREE.Color(2.2,0.75,0.22),transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false});
