@@ -1,0 +1,5 @@
+uscita/
+voices
+__pycache__/
+*.wav
+report.md

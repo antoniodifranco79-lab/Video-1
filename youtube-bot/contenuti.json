@@ -1,0 +1,236 @@
+{
+  "canale": "Curiosità al Minuto",
+  "chiusura": "Quale ti ha sorpreso di più? Scrivilo nei commenti, e iscriviti per una curiosità al giorno!",
+  "video": [
+    {
+      "id": "squali",
+      "titolo": "5 curiosità sugli SQUALI che quasi nessuno conosce",
+      "intro": "Cinque curiosità sugli squali che quasi nessuno conosce.",
+      "colori": [
+        "#0B3D91",
+        "#00A6C8"
+      ],
+      "tag": [
+        "animali",
+        "squali",
+        "mare",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Gli squali esistono da più di 400 milioni di anni: sono più antichi degli alberi.",
+        "Lo squalo balena è il pesce più grande del mondo, supera i 12 metri, ma si nutre di plancton.",
+        "Gli squali non hanno ossa: il loro scheletro è fatto di cartilagine, come le nostre orecchie.",
+        "Uno squalo può perdere migliaia di denti nella vita, perché ricrescono di continuo.",
+        "Si stima che lo squalo della Groenlandia viva oltre 250 anni: è il vertebrato più longevo conosciuto."
+      ]
+    },
+    {
+      "id": "spazio",
+      "titolo": "5 curiosità sullo SPAZIO che ti faranno impazzire",
+      "intro": "Cinque curiosità sullo spazio che ti faranno impazzire.",
+      "colori": [
+        "#140B3A",
+        "#6A2C91"
+      ],
+      "tag": [
+        "spazio",
+        "pianeti",
+        "astronomia",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Su Venere un giorno dura più di un anno: ruota su se stesso più lentamente di quanto giri intorno al Sole.",
+        "La luce del Sole impiega circa 8 minuti per arrivare fino a noi.",
+        "Sulla Luna non c'è vento: le impronte degli astronauti potrebbero restare lì per milioni di anni.",
+        "Nel Sole potrebbero entrare più di un milione di pianeti come la Terra.",
+        "Saturno è così leggero rispetto alla sua grandezza che, in teoria, galleggerebbe nell'acqua."
+      ]
+    },
+    {
+      "id": "corpo-umano",
+      "titolo": "5 cose INCREDIBILI sul tuo corpo",
+      "intro": "Cinque cose incredibili sul tuo corpo.",
+      "colori": [
+        "#8E1B3A",
+        "#E8505B"
+      ],
+      "tag": [
+        "corpo umano",
+        "scienza",
+        "salute",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Un adulto ha 206 ossa, ma un neonato ne ha circa 300: crescendo, molte si saldano insieme.",
+        "L'osso più piccolo del corpo è la staffa, nell'orecchio: misura circa 3 millimetri.",
+        "Il tuo cuore batte circa 100.000 volte al giorno, senza fermarsi mai.",
+        "Lo stomaco rinnova il suo rivestimento ogni pochi giorni, così non digerisce se stesso.",
+        "Le impronte digitali sono uniche: perfino i gemelli identici le hanno diverse."
+      ]
+    },
+    {
+      "id": "animali",
+      "titolo": "5 ANIMALI con poteri sorprendenti",
+      "intro": "Cinque animali con abilità davvero sorprendenti.",
+      "colori": [
+        "#1E5B2E",
+        "#7CC242"
+      ],
+      "tag": [
+        "animali",
+        "natura",
+        "polpo",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Il polpo ha tre cuori e il sangue blu.",
+        "I koala possono dormire fino a 20 ore al giorno.",
+        "Le giraffe invece dormono pochissimo: in natura spesso meno di due ore al giorno.",
+        "Il colibrì è capace di volare anche all'indietro.",
+        "Le lontre marine a volte si tengono per mano mentre dormono, per non allontanarsi l'una dall'altra."
+      ]
+    },
+    {
+      "id": "oceani",
+      "titolo": "5 SEGRETI degli oceani",
+      "intro": "Cinque segreti degli oceani che forse non conosci.",
+      "colori": [
+        "#03263F",
+        "#0E7C86"
+      ],
+      "tag": [
+        "oceano",
+        "mare",
+        "balena",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Più dell'80 per cento dell'oceano non è ancora stato esplorato.",
+        "La Fossa delle Marianne è profonda quasi 11 chilometri: l'Everest ci starebbe dentro, con oltre 2 chilometri d'avanzo.",
+        "Circa metà dell'ossigeno che respiriamo viene dagli oceani, grazie al plancton.",
+        "La balenottera azzurra è l'animale più grande mai esistito sulla Terra.",
+        "Il suo cuore può pesare circa 180 chili."
+      ]
+    },
+    {
+      "id": "antichi-romani",
+      "titolo": "5 cose che non sai sugli ANTICHI ROMANI",
+      "intro": "Cinque cose che non sai sugli antichi Romani.",
+      "colori": [
+        "#5A1A0E",
+        "#C8762B"
+      ],
+      "tag": [
+        "storia",
+        "antica roma",
+        "romani",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Il cemento dei Romani era così resistente che il Pantheon è in piedi da quasi 1900 anni.",
+        "Il Colosseo poteva ospitare circa 50.000 spettatori.",
+        "A Roma esistevano già i fast food: si chiamavano termopoli e servivano cibo caldo per strada.",
+        "I Romani usavano l'urina per lavare i vestiti, grazie all'ammoniaca che contiene.",
+        "Luglio prende il nome da Giulio Cesare, e agosto dall'imperatore Augusto."
+      ]
+    },
+    {
+      "id": "cibo",
+      "titolo": "5 curiosità sul CIBO che ti stupiranno",
+      "intro": "Cinque curiosità sul cibo che ti stupiranno.",
+      "colori": [
+        "#7A2E00",
+        "#F2A400"
+      ],
+      "tag": [
+        "cibo",
+        "cucina",
+        "pizza",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Il miele, se conservato bene, può durare praticamente per sempre.",
+        "Per la botanica la banana è una bacca, mentre la fragola non lo è.",
+        "Le prime carote erano viola o gialle: quelle arancioni si diffusero in Olanda nel Seicento.",
+        "Quando arrivò in Europa dall'America, il pomodoro era usato soprattutto come pianta ornamentale.",
+        "Secondo la tradizione, la pizza margherita fu dedicata alla regina Margherita nel 1889."
+      ]
+    },
+    {
+      "id": "italia",
+      "titolo": "5 curiosità sull'ITALIA che pochi italiani sanno",
+      "intro": "Cinque curiosità sull'Italia che pochi italiani sanno.",
+      "colori": [
+        "#0B5D3B",
+        "#C0392B"
+      ],
+      "tag": [
+        "italia",
+        "storia",
+        "viaggi",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Dentro l'Italia ci sono due stati indipendenti: San Marino e la Città del Vaticano.",
+        "Venezia è costruita su più di 100 isole, collegate da circa 400 ponti.",
+        "La Torre di Pisa iniziò a pendere pochi anni dopo l'inizio dei lavori, nel Millecento.",
+        "L'Etna è il vulcano attivo più alto d'Europa, e uno dei più attivi al mondo.",
+        "L'Italia è da anni ai primi posti al mondo per numero di siti Patrimonio dell'Umanità UNESCO."
+      ]
+    },
+    {
+      "id": "tecnologia",
+      "titolo": "5 PRIMATI della tecnologia che non conosci",
+      "intro": "Cinque primati della tecnologia che probabilmente non conosci.",
+      "colori": [
+        "#0F1C2E",
+        "#2D7FF9"
+      ],
+      "tag": [
+        "tecnologia",
+        "storia",
+        "internet",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Il primo SMS della storia fu inviato nel 1992 e diceva: Merry Christmas.",
+        "Il primo hard disk, creato da IBM nel 1956, pesava circa una tonnellata e conteneva meno di 5 megabyte.",
+        "La parola robot viene dal ceco robota, che significa lavoro forzato.",
+        "Il primo video caricato su YouTube, nel 2005, mostrava un ragazzo allo zoo.",
+        "Il QR code fu inventato in Giappone nel 1994, per seguire i pezzi delle automobili in fabbrica."
+      ]
+    },
+    {
+      "id": "natura",
+      "titolo": "5 RECORD della natura da non credere",
+      "intro": "Cinque record della natura da non credere.",
+      "colori": [
+        "#1D3B1A",
+        "#3FA796"
+      ],
+      "tag": [
+        "natura",
+        "scienza",
+        "pianeta terra",
+        "curiosità",
+        "lo sapevi"
+      ],
+      "fatti": [
+        "Alcune specie di bambù possono crescere quasi un metro in un solo giorno.",
+        "Le sequoie della California sono gli alberi più alti del mondo: superano i 110 metri.",
+        "Un fulmine è circa cinque volte più caldo della superficie del Sole.",
+        "Le banane sono leggermente radioattive, per il potassio che contengono.",
+        "Si stima che sulla Terra vivano circa 20 milioni di miliardi di formiche."
+      ]
+    }
+  ]
+}

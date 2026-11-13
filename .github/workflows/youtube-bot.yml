@@ -1,0 +1,128 @@
+name: YouTube bot
+
+on:
+  schedule:
+    - cron: "23 16 * * *"   # ogni giorno 16:23 UTC (17:23 in Italia, 18:23 con l'ora legale): nuovo video
+    - cron: "7 6 * * 1"     # ogni lunedì 06:07 UTC: statistiche, nuovi testi, riepilogo
+  workflow_dispatch:
+    inputs:
+      azione:
+        description: "Cosa fare"
+        type: choice
+        options: [pubblica, settimanale]
+        default: pubblica
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: youtube-bot
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: youtube-bot
+
+jobs:
+  pubblica:
+    if: github.event.schedule == '23 16 * * *' || (github.event_name == 'workflow_dispatch' && inputs.azione == 'pubblica')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: youtube-bot/requirements.txt
+
+      - name: Installa programmi
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -r requirements.txt
+
+      - name: Voce italiana (cache)
+        uses: actions/cache@v4
+        with:
+          path: youtube-bot/voices
+          key: piper-it_IT-paola-medium
+
+      - name: Scarica la voce se manca
+        run: |
+          mkdir -p voices
+          base=https://huggingface.co/rhasspy/piper-voices/resolve/main/it/it_IT/paola/medium
+          for f in it_IT-paola-medium.onnx it_IT-paola-medium.onnx.json; do
+            [ -s voices/$f ] || curl -sSfL --retry 3 -o voices/$f $base/$f
+          done
+
+      - name: "Bot 3 e 4: Regista e Pubblicatore"
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_VISIBILITA: ${{ vars.YT_VISIBILITA }}
+        run: python pubblica_oggi.py
+
+      - name: Salva l'elenco dei video pubblicati
+        run: |
+          git config user.name "youtube-bot"
+          git config user.email "youtube-bot@users.noreply.github.com"
+          git add pubblicati.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Bot: video pubblicato $(date +%F)"
+          git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME"
+
+  settimanale:
+    if: github.event.schedule == '7 6 * * 1' || (github.event_name == 'workflow_dispatch' && inputs.azione == 'settimanale')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: youtube-bot/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: "Bot 5: Analista"
+        continue-on-error: true
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python analista.py
+
+      - name: "Bot 1 e 2: Scrittore e Verificatore"
+        id: scrittore
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scrittore.py
+
+      - name: "Bot 6: Segretario"
+        run: python segretario.py
+
+      - name: Salva testi e statistiche
+        run: |
+          git config user.name "youtube-bot"
+          git config user.email "youtube-bot@users.noreply.github.com"
+          git add contenuti.json statistiche.json 2>/dev/null || git add contenuti.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Bot: aggiornamento settimanale $(date +%F)"
+          git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Invia il riepilogo (Issue su GitHub)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --repo "${{ github.repository }}" --title "Riepilogo settimanale $(date +%d/%m/%Y)" --body-file report.md
+
+      - name: Segnala se lo Scrittore ha avuto problemi
+        if: steps.scrittore.outcome == 'failure'
+        run: |
+          echo "::error::Lo Scrittore non è riuscito a preparare nuovi testi (vedi i passaggi sopra)."
+          exit 1
