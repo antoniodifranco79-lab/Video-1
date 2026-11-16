@@ -54,13 +54,24 @@ const TL=await (await fetch('./timeline.json')).json();
 const S={};for(const s of TL.sentences)S[s.id]=s;
 const wt=(sid,prefix,k=0)=>{const ws=S[sid].words.filter(w=>w.w.startsWith(prefix));if(!ws[k])throw new Error('missing word '+prefix);return ws[k];};
 const T={SPEED:S.speed.start,WINDS:S.winds.start,WAVES:S.waves.start,BULGE:S.bulge.start,DAY:S.day.start,ZONE:S.zone.start,OUTRO:S.outro.start,CTA:S.cta.start,END:TL.total};
+if(TL.beats){Object.assign(T,TL.beats);}else{
 T.STOP=wt('hook','ferma').s;T.TUNO=wt('hook','Tu').s-0.08;
 T.FRENA=wt('speed','Se').s-0.1;T.COLPO=wt('speed','colpo').s;T.TUTTO=wt('speed','tutto').s-0.1;
 T.VENTI=wt('winds','venti').s-0.1;T.WINDB=wt('winds','spazzano').s;
 T.TSU=wt('waves','Tsunami').s-0.1;T.COSTE=wt('waves','penetrano').s-0.1;
 T.SENZA=wt('bulge','Senza').s-0.1;T.MIGR=wt('bulge','gli').s-0.1;
 T.LUCE=wt('day','sei').s-0.1;T.NOTTE=wt('day','sei',1).s-0.05;
-T.TRAM=wt('zone','in').s-0.1;T.MONDO=wt('outro','Il').s-0.1;T.BH=wt('cta','un').s-0.05;
+T.TRAM=wt('zone','in').s-0.1;T.MONDO=wt('outro','Il').s-0.1;T.BH=wt('cta','un').s-0.05;}
+const EN=TL.lang==='en';
+const L=EN?{sub:'EP. 04 · EARTH STOPS',cta1:'Follow →',cta2:'next episode:<br>a black hole in the Solar System',sep:',',
+ eq:'SPEED AT THE EQUATOR',stopped:'ROTATION: STOPPED',spin:'1 TURN EVERY 24 HOURS',ground:'GROUND SPEED',poles:'AT THE POLES: 0 KM/H',wind:'WIND',hur:'RECORD HURRICANE: 345 KM/H',
+ bulge:'EQUATORIAL BULGE',bulge2:'EQUATOR RADIUS MINUS POLAR RADIUS',sea:'SEA LEVEL AT THE EQUATOR',poles2:'AT THE POLES: +',day:'ONE SINGLE DAY',dayN:'DAY ',sunUp:'SUN ALWAYS UP',night6:'6 MONTHS OF NIGHT',slow:'REAL SLOWDOWN',slowV:'2 MS / CENTURY',
+ cEq:'EQUATOR: 1,670 KM/H',cPole:'POLE: 0 KM/H',cStorm:'GLOBAL STORM',cWall:'WALL OF DEBRIS',cOce:'OCEANS ON THE MOVE',cTsu:'TSUNAMI',cPolar:'POLAR OCEAN',cSup:'SUPERCONTINENT',cYou:'YOU ARE HERE',cHot:'DAY SIDE: DESERT',cCold:'NIGHT SIDE: ICE',cZone:'HABITABLE ZONE',cDusk:'ETERNAL TWILIGHT'}
+:{sub:'EP. 04 · LA TERRA FERMA',cta1:'Seguimi →',cta2:'prossimo episodio:<br>un buco nero nel Sistema Solare',sep:'.',
+ eq:"VELOCITÀ ALL'EQUATORE",stopped:'ROTAZIONE: FERMA',spin:'1 GIRO OGNI 24 ORE',ground:'VELOCITÀ DEL SUOLO',poles:'AI POLI: 0 KM/H',wind:'VENTO',hur:'URAGANO RECORD: 345 KM/H',
+ bulge:'RIGONFIAMENTO EQUATORIALE',bulge2:'DIFFERENZA TRA RAGGIO EQUATORIALE E POLARE',sea:"MARE ALL'EQUATORE",poles2:'AI POLI: +',day:'UN SOLO GIORNO',dayN:'GIORNO ',sunUp:'SOLE SEMPRE ALTO',night6:'NOTTE PER 6 MESI',slow:'RALLENTAMENTO REALE',slowV:'2 MS / SECOLO',
+ cEq:'EQUATORE: 1.670 KM/H',cPole:'POLO: 0 KM/H',cStorm:'TEMPESTA GLOBALE',cWall:'MURO DI DETRITI',cOce:'OCEANI IN MOVIMENTO',cTsu:'TSUNAMI',cPolar:'OCEANO POLARE',cSup:'SUPERCONTINENTE',cYou:'TU SEI QUI',cHot:'LATO GIORNO: DESERTO',cCold:'LATO NOTTE: GHIACCIO',cZone:'ZONA ABITABILE',cDusk:'CREPUSCOLO ETERNO'};
+document.querySelector('#badge .sub').textContent=L.sub;document.querySelector('#cta .l1').textContent=L.cta1;document.querySelector('#cta .l2').innerHTML=L.cta2;
 
 // ---------------- helpers
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -554,24 +565,24 @@ const capEl=document.getElementById('cap'),ctaEl=document.getElementById('cta'),
 const surf=(lat,lon)=>{const p=V(-Math.cos(lon)*Math.cos(lat),Math.sin(lat),Math.sin(lon)*Math.cos(lat));return p.applyQuaternion(earthSpin.getWorldQuaternion(new THREE.Quaternion())).multiply(earthShape.scale).add(earthGroup.position);};
 const facing=(lat)=>{const d=camera.position.clone().sub(earthGroup.position);d.y=0;d.normalize();const p=V(d.x*Math.cos(lat),Math.sin(lat),d.z*Math.cos(lat));return p.multiplyScalar(1.0).add(earthGroup.position);};
 const callouts=[
- {t0:T.SPEED+1.4,t1:T.FRENA-0.1,text:'EQUATORE: 1.670 KM/H',anchor:()=>facing(0.0).add(V(0.2,0,0)),dx:-200,dy:-330},
- {t0:T.SPEED+2.4,t1:T.FRENA-0.1,text:'POLO: 0 KM/H',anchor:()=>V(0,1.0,0),dx:170,dy:-170},
- {t0:T.WINDS+0.6,t1:T.VENTI-0.1,text:'TEMPESTA GLOBALE',anchor:()=>facing(0.25),dx:-220,dy:-300},
- {t0:T.VENTI+0.6,t1:T.WINDB-0.1,text:'MURO DI DETRITI',anchor:()=>V(cU.uDustX.value,120,-420),dx:150,dy:-260},
- {t0:T.WAVES+0.5,t1:T.TSU-0.1,text:'OCEANI IN MOVIMENTO',anchor:()=>facing(-0.15),dx:-220,dy:-320},
- {t0:T.TSU+0.6,t1:T.COSTE-0.1,text:'TSUNAMI',anchor:()=>V(xcAt(window.__t),hcAt(window.__t)*0.9,-140),dx:120,dy:-260},
+ {t0:T.SPEED+1.4,t1:T.FRENA-0.1,text:L.cEq,anchor:()=>facing(0.0).add(V(0.2,0,0)),dx:-200,dy:-330},
+ {t0:T.SPEED+2.4,t1:T.FRENA-0.1,text:L.cPole,anchor:()=>V(0,1.0,0),dx:170,dy:-170},
+ {t0:T.WINDS+0.6,t1:T.VENTI-0.1,text:L.cStorm,anchor:()=>facing(0.25),dx:-220,dy:-300},
+ {t0:T.VENTI+0.6,t1:T.WINDB-0.1,text:L.cWall,anchor:()=>V(cU.uDustX.value,120,-420),dx:150,dy:-260},
+ {t0:T.WAVES+0.5,t1:T.TSU-0.1,text:L.cOce,anchor:()=>facing(-0.15),dx:-220,dy:-320},
+ {t0:T.TSU+0.6,t1:T.COSTE-0.1,text:L.cTsu,anchor:()=>V(xcAt(window.__t),hcAt(window.__t)*0.9,-140),dx:120,dy:-260},
  {t0:T.BULGE+0.6,t1:T.MIGR-0.2,text:'+21 KM',anchor:()=>V(earthShape.scale.x+0.01,0,0),dx:-60,dy:-330},
- {t0:T.MIGR+1.4,t1:T.DAY-0.2,text:'OCEANO POLARE',anchor:()=>V(0,0.97,0),dx:-200,dy:-200},
- {t0:T.MIGR+2.4,t1:T.DAY-0.2,text:'SUPERCONTINENTE',anchor:()=>facing(0.05),dx:180,dy:-380},
- {t0:T.DAY+0.5,t1:T.LUCE-0.1,text:'TU SEI QUI',anchor:()=>pin.getWorldPosition(new THREE.Vector3()),dx:-200,dy:-220},
- {t0:T.LUCE+0.3,t1:T.NOTTE-0.05,text:'LATO GIORNO: DESERTO',anchor:()=>sd.clone().multiplyScalar(0.98),dx:-180,dy:-330},
- {t0:T.NOTTE+0.3,t1:T.ZONE-0.1,text:'LATO NOTTE: GHIACCIO',anchor:()=>sd.clone().multiplyScalar(-0.98).add(V(0,0.1,0)),dx:150,dy:-330},
- {t0:T.ZONE+1.0,t1:T.TRAM-0.1,text:'ZONA ABITABILE',anchor:()=>{const a=V(0,1,0).cross(sd).normalize();return a.multiplyScalar(-0.0).add(V(0,0.95,0)).normalize().multiplyScalar(1.03).applyAxisAngle(sd,0.6);},dx:-150,dy:-300},
- {t0:T.TRAM+0.6,t1:T.OUTRO-0.2,text:'CREPUSCOLO ETERNO',anchor:()=>V(4,7.5,-200),dx:-180,dy:-200},
+ {t0:T.MIGR+1.4,t1:T.DAY-0.2,text:L.cPolar,anchor:()=>V(0,0.97,0),dx:-200,dy:-200},
+ {t0:T.MIGR+2.4,t1:T.DAY-0.2,text:L.cSup,anchor:()=>facing(0.05),dx:180,dy:-380},
+ {t0:T.DAY+0.5,t1:T.LUCE-0.1,text:L.cYou,anchor:()=>pin.getWorldPosition(new THREE.Vector3()),dx:-200,dy:-220},
+ {t0:T.LUCE+0.3,t1:T.NOTTE-0.05,text:L.cHot,anchor:()=>sd.clone().multiplyScalar(0.98),dx:-180,dy:-330},
+ {t0:T.NOTTE+0.3,t1:T.ZONE-0.1,text:L.cCold,anchor:()=>sd.clone().multiplyScalar(-0.98).add(V(0,0.1,0)),dx:150,dy:-330},
+ {t0:T.ZONE+1.0,t1:T.TRAM-0.1,text:L.cZone,anchor:()=>{const a=V(0,1,0).cross(sd).normalize();return a.multiplyScalar(-0.0).add(V(0,0.95,0)).normalize().multiplyScalar(1.03).applyAxisAngle(sd,0.6);},dx:-150,dy:-300},
+ {t0:T.TRAM+0.6,t1:T.OUTRO-0.2,text:L.cDusk,anchor:()=>V(4,7.5,-200),dx:-180,dy:-200},
 ];
 for(const c of callouts){const d=document.createElement('div');d.className='callout';d.innerHTML=`<div class="dot"></div><div class="line"></div><div class="lbl">${c.text}</div>`;calloutsEl.appendChild(d);c.el=d;}
 function project(v){const p=v.clone().project(camera);return{x:(p.x*0.5+0.5)*W,y:(-p.y*0.5+0.5)*H,z:p.z};}
-const fmt=(n)=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const fmt=(n)=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,L.sep);
 function updateUI(t){
  let html='',cls='';
  for(const s of TL.sentences){if(t<s.chunks[0].s-0.08||t>s.end+0.35)continue;
@@ -582,13 +593,13 @@ function updateUI(t){
  capEl.innerHTML=html;capEl.className=cls;if(!html)capEl.style.opacity=0;
  const K=hudEl.querySelector('.k'),Vv=hudEl.querySelector('.v'),K2=hudEl.querySelector('.k2'),BAR=hudEl.querySelector('.bar i');let ha=0;Vv.style.color='#fff';
  const win=(a,b)=>Math.min(sm(u01(t,a,a+0.35)),1-sm(u01(t,b-0.3,b)));
- if(t>=0.25&&t<T.TUNO){ha=win(0.25,T.TUNO);const sp=1670*omega(t)/W0;K.textContent="VELOCITÀ ALL'EQUATORE";Vv.textContent=fmt(sp)+' KM/H';Vv.style.color=t>=T.STOP?'#ff5a3a':'#fff';BAR.style.width=(100*sp/1670).toFixed(1)+'%';K2.textContent=t>=T.STOP?'ROTAZIONE: FERMA':'1 GIRO OGNI 24 ORE';}
- else if(t>=T.SPEED+0.2&&t<T.FRENA){ha=win(T.SPEED+0.2,T.FRENA);K.textContent='VELOCITÀ DEL SUOLO';Vv.textContent='1.670 KM/H';BAR.style.width='100%';K2.textContent='AI POLI: 0 KM/H';}
- else if(t>=T.VENTI+0.1&&t<T.WAVES){ha=win(T.VENTI+0.1,T.WAVES);const v=1670*easeOut(u01(t,T.VENTI+0.1,T.VENTI+1.3));K.textContent='VENTO';Vv.textContent=fmt(v)+' KM/H';Vv.style.color='#ff5a3a';BAR.style.width=(100*v/1670).toFixed(1)+'%';K2.textContent='URAGANO PIÙ FORTE: ~300 KM/H';}
- else if(t>=T.BULGE+0.2&&t<T.MIGR){ha=win(T.BULGE+0.2,T.MIGR);const v=21*(1-easeInOut(u01(t,T.SENZA+0.3,T.SENZA+2.6)));K.textContent='RIGONFIAMENTO EQUATORIALE';Vv.textContent=Math.round(v)+' KM';BAR.style.width=(100*v/21).toFixed(1)+'%';K2.textContent='DIFFERENZA TRA RAGGIO EQUATORIALE E POLARE';}
- else if(t>=T.MIGR+0.2&&t<T.DAY){ha=win(T.MIGR+0.2,T.DAY);const A=eU.uMigA.value;K.textContent="MARE ALL'EQUATORE";Vv.textContent=(A>0.5?'−':'')+Math.round(A*2/3)+' KM';BAR.style.width=(100*A/21).toFixed(1)+'%';K2.textContent='AI POLI: +'+Math.round(A/3)+' KM';}
- else if(t>=T.DAY+0.1&&t<T.LUCE){ha=win(T.DAY+0.1,T.LUCE);const d=1+364*easeInOut(u01(t,T.DAY+0.25,T.LUCE-0.1));K.textContent='UN SOLO GIORNO';Vv.textContent='GIORNO '+Math.round(d);BAR.style.width=(100*d/365).toFixed(1)+'%';K2.textContent=d<183?'SOLE SEMPRE ALTO':'NOTTE PER 6 MESI';}
- else if(t>=T.OUTRO+0.3&&t<T.MONDO){ha=win(T.OUTRO+0.3,T.MONDO);K.textContent='RALLENTAMENTO REALE';Vv.textContent='2 MS / SECOLO';BAR.style.width='2%';K2.textContent='ROTAZIONE: 1 GIRO OGNI 24 ORE';}
+ if(t>=0.25&&t<T.TUNO){ha=win(0.25,T.TUNO);const sp=1670*omega(t)/W0;K.textContent=L.eq;Vv.textContent=fmt(sp)+' KM/H';Vv.style.color=t>=T.STOP?'#ff5a3a':'#fff';BAR.style.width=(100*sp/1670).toFixed(1)+'%';K2.textContent=t>=T.STOP?L.stopped:L.spin;}
+ else if(t>=T.SPEED+0.2&&t<T.FRENA){ha=win(T.SPEED+0.2,T.FRENA);K.textContent=L.ground;Vv.textContent=fmt(1670)+' KM/H';BAR.style.width='100%';K2.textContent=L.poles;}
+ else if(t>=T.VENTI+0.1&&t<T.WAVES){ha=win(T.VENTI+0.1,T.WAVES);const v=1670*easeOut(u01(t,T.VENTI+0.1,T.VENTI+1.3));K.textContent=L.wind;Vv.textContent=fmt(v)+' KM/H';Vv.style.color='#ff5a3a';BAR.style.width=(100*v/1670).toFixed(1)+'%';K2.textContent=L.hur;}
+ else if(t>=T.BULGE+0.2&&t<T.MIGR){ha=win(T.BULGE+0.2,T.MIGR);const v=21*(1-easeInOut(u01(t,T.SENZA+0.3,T.SENZA+2.6)));K.textContent=L.bulge;Vv.textContent=Math.round(v)+' KM';BAR.style.width=(100*v/21).toFixed(1)+'%';K2.textContent=L.bulge2;}
+ else if(t>=T.MIGR+0.2&&t<T.DAY){ha=win(T.MIGR+0.2,T.DAY);const A=eU.uMigA.value;K.textContent=L.sea;Vv.textContent=(A>0.5?'−':'')+Math.round(A*2/3)+' KM';BAR.style.width=(100*A/21).toFixed(1)+'%';K2.textContent=L.poles2+Math.round(A/3)+' KM';}
+ else if(t>=T.DAY+0.1&&t<T.LUCE){ha=win(T.DAY+0.1,T.LUCE);const d=1+364*easeInOut(u01(t,T.DAY+0.25,T.LUCE-0.1));K.textContent=L.day;Vv.textContent=L.dayN+Math.round(d);BAR.style.width=(100*d/365).toFixed(1)+'%';K2.textContent=d<183?L.sunUp:L.night6;}
+ else if(t>=T.OUTRO+0.3&&t<T.MONDO){ha=win(T.OUTRO+0.3,T.MONDO);K.textContent=L.slow;Vv.textContent=L.slowV;BAR.style.width='2%';K2.textContent=L.spin;}
  hudEl.style.opacity=ha;
  const ca=t>=T.CTA?sm(u01(t,T.CTA+0.3,T.CTA+0.9)):0;ctaEl.style.opacity=ca;ctaEl.style.transform=`translateX(-50%) translateY(${(1-ca)*30}px)`;
  for(const c of callouts){const a=Math.min(sm(u01(t,c.t0,c.t0+0.35)),1-sm(u01(t,c.t1-0.3,c.t1)));c.el.style.opacity=a;if(a<=0)continue;

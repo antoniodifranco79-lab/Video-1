@@ -11,13 +11,17 @@ def wt(sid, prefix, k=0):
 T = dict(SPEED=S['speed']['start'], WINDS=S['winds']['start'], WAVES=S['waves']['start'], BULGE=S['bulge']['start'], DAY=S['day']['start'],
          ZONE=S['zone']['start'], OUTRO=S['outro']['start'], CTA=S['cta']['start'], END=TL['total'])
 T['TITLE'] = S['hook']['words'][0]['s']
-T['STOP'] = wt('hook', 'ferma')['s']; T['TUNO'] = wt('hook', 'Tu')['s'] - 0.08
-T['FRENA'] = wt('speed', 'Se')['s'] - 0.1; T['COLPO'] = wt('speed', 'colpo')['s']; T['TUTTO'] = wt('speed', 'tutto')['s'] - 0.1
-T['VENTI'] = wt('winds', 'venti')['s'] - 0.1; T['WINDB'] = wt('winds', 'spazzano')['s']
-T['TSU'] = wt('waves', 'Tsunami')['s'] - 0.1; T['COSTE'] = wt('waves', 'penetrano')['s'] - 0.1; T['LAND'] = T['TSU'] + (-212 + 610) / 165
-T['SENZA'] = wt('bulge', 'Senza')['s'] - 0.1; T['MIGR'] = wt('bulge', 'gli')['s'] - 0.1
-T['LUCE'] = wt('day', 'sei')['s'] - 0.1; T['NOTTE'] = wt('day', 'sei', 1)['s'] - 0.05
-T['TRAM'] = wt('zone', 'in')['s'] - 0.1; T['MONDO'] = wt('outro', 'Il')['s'] - 0.1; T['BH'] = wt('cta', 'un')['s'] - 0.05
+if 'beats' in TL:
+    T.update({k: float(v) for k, v in TL['beats'].items()})
+else:
+    T['STOP'] = wt('hook', 'ferma')['s']; T['TUNO'] = wt('hook', 'Tu')['s'] - 0.08
+    T['FRENA'] = wt('speed', 'Se')['s'] - 0.1; T['COLPO'] = wt('speed', 'colpo')['s']; T['TUTTO'] = wt('speed', 'tutto')['s'] - 0.1
+    T['VENTI'] = wt('winds', 'venti')['s'] - 0.1; T['WINDB'] = wt('winds', 'spazzano')['s']
+    T['TSU'] = wt('waves', 'Tsunami')['s'] - 0.1; T['COSTE'] = wt('waves', 'penetrano')['s'] - 0.1
+    T['SENZA'] = wt('bulge', 'Senza')['s'] - 0.1; T['MIGR'] = wt('bulge', 'gli')['s'] - 0.1
+    T['LUCE'] = wt('day', 'sei')['s'] - 0.1; T['NOTTE'] = wt('day', 'sei', 1)['s'] - 0.05
+    T['TRAM'] = wt('zone', 'in')['s'] - 0.1; T['MONDO'] = wt('outro', 'Il')['s'] - 0.1; T['BH'] = wt('cta', 'un')['s'] - 0.05
+T['LAND'] = T['TSU'] + (-212 + 610) / 165
 N = int((T['END'] + 1.0) * SR)
 rng = np.random.default_rng(23)
 music = np.zeros((N, 2)); sfx = np.zeros((N, 2))
