@@ -12,7 +12,7 @@ page.on('console',m=>console.log('console:',m.text()));page.on('pageerror',e=>co
 const SCENE=process.env.SCENE||'src/scene.html';const OUT=process.env.OUT||'frames';
 await page.goto(`http://localhost:${port}/${SCENE}`);
 await page.waitForFunction(()=>window.ready,null,{timeout:120000});
-const TL=JSON.parse(fs.readFileSync(path.join(path.dirname(SCENE),'timeline.json')));const fps=TL.fps;
+const TL=JSON.parse(fs.readFileSync(path.join(path.dirname(SCENE),'timeline.json')));const fps=+(process.env.FPS||TL.fps);
 if(mode==='test'){
  const times=args.slice(1).map(Number);fs.mkdirSync('test',{recursive:true});
  for(const t of times){const t0=Date.now();await page.evaluate(t=>window.seek(t),t);const buf=await page.screenshot({type:'jpeg',quality:88});fs.writeFileSync(`test/t_${t.toFixed(2)}.jpg`,buf);console.log('t',t,'ms',Date.now()-t0);}

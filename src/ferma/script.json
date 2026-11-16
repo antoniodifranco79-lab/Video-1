@@ -1,0 +1,11 @@
+[
+ {"id":"hook",   "text":"E se la Terra smettesse di girare, all'improvviso? Il pianeta si ferma. Tu no.", "pauseAfter":0.55},
+ {"id":"speed",  "text":"All'equatore il suolo corre verso est a milleseicentosettanta chilometri orari. Se la Terra frena di colpo, tutto quello che non è ancorato alla roccia continua a volare.", "pauseAfter":0.4},
+ {"id":"winds",  "text":"L'atmosfera non si ferma: venti più veloci di qualsiasi uragano spazzano via città e foreste in pochi minuti.", "pauseAfter":0.4},
+ {"id":"waves",  "text":"Gli oceani fanno lo stesso. Tsunami giganteschi travolgono le coste e penetrano per centinaia di chilometri nell'entroterra.", "pauseAfter":0.55},
+ {"id":"bulge",  "text":"Poi la Terra cambia forma. Senza rotazione, il rigonfiamento all'equatore sparisce: gli oceani migrano verso i poli, e all'equatore emerge un unico, immenso supercontinente.", "pauseAfter":0.5},
+ {"id":"day",    "text":"E un giorno dura un anno intero: sei mesi di luce rovente, sei mesi di notte glaciale.", "pauseAfter":0.45},
+ {"id":"zone",   "text":"La vita resisterebbe solo sul confine tra il giorno e la notte, in un tramonto che non finisce mai.", "pauseAfter":0.6},
+ {"id":"outro",  "text":"Per fortuna la rotazione rallenta di appena due millesimi di secondo ogni secolo. Il mondo continuerà a girare.", "pauseAfter":0.35},
+ {"id":"cta",    "text":"Seguimi: nel prossimo Uot If, un buco nero attraversa il Sistema Solare.", "pauseAfter":1.3}
+]

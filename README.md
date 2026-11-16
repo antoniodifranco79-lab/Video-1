@@ -4,8 +4,31 @@
 |---|---|---|
 | E se la Luna cadesse sulla Terra? | [`output/what_if_luna.mp4`](output/what_if_luna.mp4) | `src/` |
 | E se il Sole si spegnesse? | [`output/what_if_sole.mp4`](output/what_if_sole.mp4) | `src/sole/` |
+| E se la Terra smettesse di girare? | [`output/what_if_terra_ferma.mp4`](output/what_if_terra_ferma.mp4) | `src/ferma/` |
 
 Ogni episodio ha la stessa pipeline: `script.json` (testo), `build_timeline.py` (voce Piper + tempi parola per parola), `scene.html` (scena Three.js), `music.py` (colonna sonora e mix), `src/render.mjs` (rendering fotogramma per fotogramma).
+
+## Episodio "La Terra ferma"
+
+Il più ambizioso della serie, con cinque mondi 3D.
+- Lo spazio: la Terra che si ferma, le frecce di velocità, il fronte di tempesta globale, il rigonfiamento equatoriale, la migrazione degli oceani verso i poli calcolata su una vera mappa di altitudine e batimetria, l'anno solare e la fascia abitabile.
+- Una città procedurale con muro di polvere, detriti, grattacieli che crollano e uno tsunami.
+- Un paesaggio al tramonto perenne.
+- Un buco nero con lente gravitazionale calcolata raggio per raggio.
+
+La voce è neurale (Kokoro, `if_sara`). I sottotitoli sono allineati ai tempi reali delle parole con Whisper. Il rendering è a 60 fps, con le coppie di fotogrammi fuse per ottenere il motion blur a 30 fps.
+
+```bash
+pip install kokoro-onnx soundfile faster-whisper scipy pillow
+mkdir -p models && cd models && \
+  curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx && \
+  curl -LO https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin && cd ..
+python3 src/ferma/make_heightmap.py
+cd src/ferma && python3 build_timeline.py && python3 music.py && cd ../..
+SCENE=src/ferma/scene.html FPS=60 OUT=frames_ferma node src/render.mjs full 0 3720 1
+ffmpeg -framerate 60 -i frames_ferma/f%05d.jpg -i src/ferma/audio.wav -vf "tmix=frames=2,fps=30" -c:v libx264 -preset slow -crf 22 \
+  -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 192k -shortest output/what_if_terra_ferma.mp4
+```
 
 ## Episodio "Il Sole"
 

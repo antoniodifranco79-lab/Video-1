@@ -6,3 +6,6 @@ voices/
 !output/*.mp4
 frames_sole/
 src/sole/narr/
+models/
+frames_ferma/
+src/ferma/narr/
