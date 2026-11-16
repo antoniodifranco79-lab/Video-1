@@ -29,9 +29,7 @@ lang=sys.argv[1]
 if lang=='it':
     centered(1190,'E SE LA TERRA',118); centered(1340,'SI FERMASSE?',124,box=(255,214,10))
     tag='WHAT IF · EP. 04'; out='cover_it.jpg'
-else:
-    centered(1190,'WHAT IF EARTH',118); centered(1340,'STOPPED SPINNING?',96,box=(255,214,10))
-    tag='WHAT IF · EP. 04'; out='cover_en.jpg'
+
 f=font(MONO,34); w=d.textlength(tag,font=f); d.rounded_rectangle([(W-w)/2-28,1060,(W+w)/2+28,1124],radius=32,outline=(255,255,255),width=4,fill=(0,0,0))
 d.text(((W-w)/2,1070),tag,font=f,fill=(255,255,255))
 bg.save(out,quality=94); print(out)
